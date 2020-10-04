@@ -90,14 +90,12 @@ public class AgilityPyramidPlugin extends Plugin {
     AgilityPyramidState state;
     Instant botTimer;
     MenuEntry targetMenu;
-    LocalPoint beforeLoc = new LocalPoint(0, 0); //initiate to mitigate npe
+    LocalPoint beforeLoc = new LocalPoint(0, 0);
     Set<Integer> inventoryItems = new HashSet<>();
 
     private final Set<Integer> REGION_IDS = Set.of(13356, 12105);
     WorldArea PYRAMID0 = new WorldArea(new WorldPoint(3354,2828,0),new WorldPoint(3366,2832,0));
     WorldArea SIMON_TEMPLETON = new WorldArea (new WorldPoint (3334,2820,0), new WorldPoint(3350,2831,0));
-    Set<Integer> STAFFS = Set.of(ItemID.STAFF_OF_WATER, ItemID.WATER_BATTLESTAFF, ItemID.STEAM_BATTLESTAFF, ItemID.MIST_BATTLESTAFF,
-            ItemID.MUD_BATTLESTAFF, ItemID.MYSTIC_WATER_STAFF, ItemID.MYSTIC_STEAM_STAFF, ItemID.MYSTIC_MUD_STAFF, ItemID.MYSTIC_MIST_STAFF, ItemID.KODAI_WAND);
 
     int timeout;
     int waterskinsLeft;
@@ -296,7 +294,6 @@ public class AgilityPyramidPlugin extends Plugin {
                     if (player.getWorldLocation().equals(new WorldPoint(3043, 4701, 2))) {
                         utils.walk((new WorldPoint(3048 + utils.getRandomIntBetweenRange(0, 1), 4697 + utils.getRandomIntBetweenRange(0, 2), 2)), 1, sleepDelay());
                     }
-//                    shouldRun();
                     break;
                 case HAND_IN_TOPS:
                     if (utils.inventoryContains(ItemID.PYRAMID_TOP)) {
@@ -318,6 +315,7 @@ public class AgilityPyramidPlugin extends Plugin {
         }
     }
 
+
     private void walkToSimon() {
         GroundObject climbRock = utils.findNearestGroundObject(11949);
             if (climbRock != null) {
@@ -332,7 +330,7 @@ public class AgilityPyramidPlugin extends Plugin {
             if (Simon != null) {
             targetMenu = new MenuEntry("Use", "<col=ff9040>Pyramid top<col=ffffff> -> <col=ffff00>Simon Templeton", 1648, 7,
                     0, 0, false);
-                utils.setMenuEntry(targetMenu);
+                utils.setModifiedMenuEntry(targetMenu,ItemID.PYRAMID_TOP,utils.getInventoryWidgetItem(ItemID.PYRAMID_TOP).getIndex(),7);
                 utils.delayMouseClick(Simon.getConvexHull().getBounds(), sleepDelay());
             }
         }
@@ -351,13 +349,13 @@ public class AgilityPyramidPlugin extends Plugin {
     }
     private void castHumidify() {
         if ( !utils.inventoryContains(9075) && !utils.runePouchContains(9075)) {
-            utils.sendGameMessage("out of astrals runes");
+            utils.sendGameMessage("Out of astrals runes");
             startAgility = false;
         }
         targetMenu = new MenuEntry("Cast", "<col=00ff00>Humidify</col>", 1, 57, -1, 14286954, false);
         Widget spellWidget = utils.getSpellWidget("Humidify");
         if (spellWidget == null) {
-            utils.sendGameMessage("unable to find humidify widget");
+            utils.sendGameMessage("Unable to find humidify widget");
             startAgility = false;
         }
         utils.oneClickCastSpell(utils.getSpellWidgetInfo("Humidify"), targetMenu, sleepDelay());
@@ -369,6 +367,6 @@ public class AgilityPyramidPlugin extends Plugin {
         }
     }
     private void drinkStam() {
-                    utils.drinkStamPot();
+        utils.drinkStamPot(config.minEnergy());
                 }
 }
