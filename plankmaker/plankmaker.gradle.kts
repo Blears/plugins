@@ -26,7 +26,7 @@
 version = "1.0.1"
 
 project.extra["PluginName"] = "Sandy Plankmaker"
-project.extra["PluginDescription"] = "Automatically runs agility pyramid"
+project.extra["PluginDescription"] = "Automatically chops oaks and makes planks at WC guild"
 
 dependencies {
     compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
