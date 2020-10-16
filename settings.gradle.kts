@@ -27,6 +27,8 @@ rootProject.name = "Sandy Plugins"
 
 include(":agilitypyramid")
 include(":plankmaker")
+include(":cannonballer")
+include(":tabmaker")
 
 for (project in rootProject.children) {
     project.apply {

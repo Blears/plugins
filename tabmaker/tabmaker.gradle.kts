@@ -23,10 +23,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.0.2"
+version = "1.0.1"
 
-project.extra["PluginName"] = "Sandy Plankmaker"
-project.extra["PluginDescription"] = "Automatically chops oaks and makes planks at WC guild"
+project.extra["PluginName"] = "Sandy Tabmaker"
+project.extra["PluginDescription"] = "Automatically makes house tabs. Requires mounted glory or crafting cape"
 
 dependencies {
     compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
