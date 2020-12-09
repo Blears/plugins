@@ -35,29 +35,47 @@ import net.runelite.api.events.ConfigButtonClicked;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.api.MenuEntry;
+import net.runelite.api.Client;
+import net.runelite.api.GameObject;
+import net.runelite.api.GameState;
+import net.runelite.api.MenuOpcode;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.*;
-import net.runelite.client.plugins.botutils.BotUtils;
+import net.runelite.client.plugins.iutils.BankUtils;
+import net.runelite.client.plugins.iutils.CalculationUtils;
+import net.runelite.client.plugins.iutils.InterfaceUtils;
+import net.runelite.client.plugins.iutils.InventoryUtils;
+import net.runelite.client.plugins.iutils.MenuUtils;
+import net.runelite.client.plugins.iutils.MouseUtils;
+import net.runelite.client.plugins.iutils.NPCUtils;
+import net.runelite.client.plugins.iutils.ObjectUtils;
+import net.runelite.client.plugins.iutils.PlayerUtils;
+import net.runelite.client.plugins.iutils.WalkUtils;
+import net.runelite.client.plugins.iutils.iUtils;
+
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.awt.event.MouseEvent;
+import java.awt.Dimension;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import static net.runelite.client.plugins.plankmaker.plankmakerState.*;
 
-
 @Extension
-@PluginDependency(BotUtils.class)
+@PluginDependency(iUtils.class)
 @PluginDescriptor(
 	name = "Sandy Plankmaker",
 	enabledByDefault = false,
-	description = "Makes planks",
+	description = "Makes planks in WC Guild",
 	tags = {"plank, maker, construction, sandy"},
 	type = PluginType.SKILLING
 )
@@ -71,7 +89,37 @@ public class plankmakerPlugin extends Plugin
 	private plankmakerConfiguration config;
 
 	@Inject
-	private BotUtils utils;
+	private iUtils utils;
+
+	@Inject
+	private MouseUtils mouse;
+
+	@Inject
+	private PlayerUtils playerUtils;
+
+	@Inject
+	private InventoryUtils inventory;
+
+	@Inject
+	private InterfaceUtils interfaceUtils;
+
+	@Inject
+	private CalculationUtils calc;
+
+	@Inject
+	private MenuUtils menu;
+
+	@Inject
+	private ObjectUtils object;
+
+	@Inject
+	private BankUtils bank;
+
+	@Inject
+	private NPCUtils npc;
+
+	@Inject
+	private WalkUtils walk;
 
 	@Inject
 	private ConfigManager configManager;
@@ -95,9 +143,9 @@ public class plankmakerPlugin extends Plugin
 	LocalPoint beforeLoc;
 	Player player;
 
-	WorldArea BANK = new WorldArea(new WorldPoint(1585,3473,0),new WorldPoint(1597,3487,0));
+	WorldArea BANK = new WorldArea(new WorldPoint(1644,3496,0),new WorldPoint(1649,3494,0));
 	WorldArea GUILD_MID = new WorldArea(new WorldPoint(1595,3497,0),new WorldPoint(1610,3500,0));
-	WorldArea OAK_TREES = new WorldArea(new WorldPoint(1609,3506,0),new WorldPoint(1624,3516,0));
+	WorldArea OAK_TREES = new WorldArea(new WorldPoint(1609,3506,0),new WorldPoint(1629,3514,0));
 	WorldPoint SAWMILL = new WorldPoint(1624,3500,0);
 
 
@@ -179,25 +227,25 @@ public class plankmakerPlugin extends Plugin
 
 	private long sleepDelay()
 	{
-		sleepLength = utils.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
+		sleepLength = calc.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
 		return sleepLength;
 	}
 
 	private int tickDelay()
 	{
-		int tickLength = (int) utils.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
+		int tickLength = (int) calc.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
 		log.debug("tick delay for {} ticks", tickLength);
 		return tickLength;
 	}
 
 	private void interactOakTree()
 	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(), 5, Collections.singleton(10820));
+		targetObject = object.findNearestGameObjectWithin(player.getWorldLocation(), 5, Collections.singleton(10820));
 		if (targetObject != null)
 		{
 			targetMenu = new MenuEntry("Chop down", "<col=ffff>Oak", targetObject.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			menu.setEntry(targetMenu);
+			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
 		else
 		{
@@ -207,12 +255,12 @@ public class plankmakerPlugin extends Plugin
 
 	private void useSawmill()
 	{
-		targetNPC = utils.findNearestNpcWithin(player.getWorldLocation(), 25, Collections.singleton(3101));
+		targetNPC = npc.findNearestNpcWithin(player.getWorldLocation(), 25, Collections.singleton(3101));
 		if (targetNPC != null)
 		{
 			targetMenu = new MenuEntry("Buy-plank", "<col=ffff00>Sawmill operator", targetNPC.getIndex(), 11, 0, 0, false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
+			menu.setEntry(targetMenu);
+			mouse.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
 		}
 		else
 		{
@@ -222,12 +270,12 @@ public class plankmakerPlugin extends Plugin
 
 	private void openBank()
 	{
-		targetObject = utils.findNearestGameObject(28861);
+		targetObject = object.findNearestGameObject(26254);
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("Bank", "<col=ffff>Bank chest", targetObject.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			targetMenu = new MenuEntry("", "", targetObject.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			menu.setEntry(targetMenu);
+			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
 		else
 		{
@@ -237,10 +285,10 @@ public class plankmakerPlugin extends Plugin
 
 	private plankmakerState getBankState()
 	{
-		if(utils.inventoryFull()){
+		if(inventory.isFull()){
 			return DEPOSIT_ITEMS;
 		}
-		if(!utils.inventoryFull()){
+		if(!inventory.isFull()){
 			return WALK_TO_OAK;
 		}
 		return UNHANDLED_STATE;
@@ -250,32 +298,32 @@ public class plankmakerPlugin extends Plugin
 		if (timeout > 0) {
 			return TIMEOUT;
 		}
-		if (!utils.inventoryContains(requiredIds)) {
+		if (!inventory.containsItem(requiredIds)) {
 			return MISSING_ITEMS;
 		}
-		if (utils.isMoving(beforeLoc)) {
+		if (playerUtils.isMoving(beforeLoc)) {
 			timeout = 2 + tickDelay();
 			return MOVING;
 		}
-		if (utils.isBankOpen()) {
+		if (bank.isDepositBoxOpen()) {
 			return getBankState();
 		}
 		if (client.getLocalPlayer().getAnimation() != -1) {
 			return ANIMATING;
 		}
-		if (utils.inventoryFull()) {
+		if (inventory.isFull()) {
 			return getPlankMakerState();
 		}
 		if (player.getWorldArea().intersectsWith(OAK_TREES)) {
 			return FIND_OAK;
 		}
 		if (player.getWorldArea().intersectsWith(GUILD_MID)) {
-			if (!utils.inventoryFull()) {
+			if (!inventory.isFull()) {
 				return WALK_TO_OAK;
 			}
 		}
 		if (player.getWorldArea().intersectsWith(BANK)) {
-			if (!utils.inventoryFull()) {
+			if (!inventory.isFull()) {
 				return WALK_TO_OAK;
 			}
 		}
@@ -303,7 +351,7 @@ public class plankmakerPlugin extends Plugin
 			switch (state)
 			{
 				case TIMEOUT:
-					utils.handleRun(30, 20);
+					playerUtils.handleRun(30, 20);
 					timeout--;
 					break;
 				case FIND_OAK:
@@ -324,15 +372,15 @@ public class plankmakerPlugin extends Plugin
 					break;
 				case ANIMATING:
 				case MOVING:
-					utils.handleRun(30, 20);
+					playerUtils.handleRun(30, 20);
 					timeout = tickDelay();
 					break;
 				case WALK_TO_MIDDLE:
-					utils.walk(new WorldPoint(1603+utils.getRandomIntBetweenRange(-3,3),3498+utils.getRandomIntBetweenRange(-1,1),0),0,sleepDelay());
+					walk.sceneWalk(new WorldPoint(1637+calc.getRandomIntBetweenRange(-3,3),3507+calc.getRandomIntBetweenRange(-1,1),0),0,sleepDelay());
 					timeout = tickDelay();
 					break;
 				case WALK_TO_OAK:
-					utils.walk(new WorldPoint(1619+utils.getRandomIntBetweenRange(0,1),3508+utils.getRandomIntBetweenRange(0,3),0),0,sleepDelay());
+					walk.sceneWalk(new WorldPoint(1619+calc.getRandomIntBetweenRange(0,1),3508+calc.getRandomIntBetweenRange(0,3),0),0,sleepDelay());
 					timeout = tickDelay();
 					break;
 				case FIND_BANK:
@@ -340,8 +388,7 @@ public class plankmakerPlugin extends Plugin
 					timeout = tickDelay();
 					break;
 				case DEPOSIT_ITEMS:
-					utils.depositAllExcept(requiredIds);
-					timeout = tickDelay();
+					bank.depositAllOfItem(8778);
 					break;
 			}
 		}
@@ -359,17 +406,17 @@ public class plankmakerPlugin extends Plugin
 
 	private void makePlank() {
 		targetMenu = new MenuEntry("Make", "<col=ff9040>Oak - 250gp</col>", 1, 57, -1, 17694735, false);
-		utils.delayMouseClick(client.getWidget(270,15).getBounds(), sleepDelay());
+		mouse.delayMouseClick(client.getWidget(270,15).getBounds(), sleepDelay());
 		}
 
 	private plankmakerState getPlankMakerState()
 	{
 		log.info("getting plank maker state");
-		if(utils.inventoryFull()){
+		if(inventory.isFull()){
 			if(player.getWorldArea().intersectsWith(OAK_TREES)){
 				return WALK_TO_SAWMILL;
 			}
-			if((player.getWorldLocation().equals(SAWMILL) && utils.inventoryContains(8778)) || (player.getWorldArea().intersectsWith(GUILD_MID)) || (player.getWorldArea().intersectsWith(BANK))){
+			if((player.getWorldLocation().equals(SAWMILL) && inventory.containsItem(8778)) || (player.getWorldArea().intersectsWith(GUILD_MID)) || (player.getWorldArea().intersectsWith(BANK))){
 				return FIND_BANK;
 			}
 			if (client.getWidget(270,15)!=null){
@@ -380,7 +427,14 @@ public class plankmakerPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onMenuOptionClicked(MenuOptionClicked event){
+	private void onMenuOptionClicked(MenuOptionClicked event)
+		{
+			if(targetMenu!=null){
+				event.consume();
+				client.invokeMenuAction(targetMenu.getOption(), targetMenu.getTarget(), targetMenu.getIdentifier(), targetMenu.getOpcode(),
+						targetMenu.getParam0(), targetMenu.getParam1());
+				targetMenu = null;
+			}
 		log.info(event.toString());
 	}
 }

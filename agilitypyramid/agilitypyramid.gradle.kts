@@ -29,8 +29,8 @@ project.extra["PluginName"] = "Sandy Pyramid"
 project.extra["PluginDescription"] = "Automatically runs agility pyramid"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
-    compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.13+")
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.3");
+    compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.16")
 }
 
 tasks {
