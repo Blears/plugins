@@ -23,14 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.0.2"
+version = "2.0.0"
 
 project.extra["PluginName"] = "Sandy Pyramid"
 project.extra["PluginDescription"] = "Automatically runs agility pyramid"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.3");
-    compileOnly(group = "com.owain.externals", name = "chinbreakhandler", version = "0.0.16")
+    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "2.3.4+");
 }
 
 tasks {
@@ -42,7 +41,7 @@ tasks {
                     "Plugin-Provider" to project.extra["PluginProvider"],
                     "Plugin-Dependencies" to
                             arrayOf(
-                                    nameToId("BotUtils"),
+                                    nameToId("iUtils"),
                                     "chinbreakhandler-plugin"
                             ).joinToString(),
                     "Plugin-Description" to project.extra["PluginDescription"],

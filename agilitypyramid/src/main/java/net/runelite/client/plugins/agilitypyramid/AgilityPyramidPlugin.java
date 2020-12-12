@@ -26,7 +26,6 @@
 package net.runelite.client.plugins.agilitypyramid;
 
 import com.google.inject.Provides;
-import com.owain.chinbreakhandler.ChinBreakHandler;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
@@ -34,16 +33,19 @@ import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ConfigButtonClicked;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.*;
-import net.runelite.client.plugins.botutils.BotUtils;
+import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
 import javax.inject.Inject;
+import java.awt.event.KeyEvent;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +54,7 @@ import static net.runelite.client.plugins.agilitypyramid.AgilityPyramidState.*;
 
 
 @Extension
-@PluginDependency(BotUtils.class)
+@PluginDependency(iUtils.class)
 @PluginDescriptor(
         name = "Sandy Agility Pyramid",
         enabledByDefault = false,
@@ -66,7 +68,43 @@ public class AgilityPyramidPlugin extends Plugin {
     private Client client;
 
     @Inject
-    private BotUtils utils;
+    private iUtils utils;
+
+    @Inject
+    private MouseUtils mouse;
+
+    @Inject
+    private PlayerUtils playerUtils;
+
+    @Inject
+    private InventoryUtils inventory;
+
+    @Inject
+    private InterfaceUtils interfaceUtils;
+
+    @Inject
+    private CalculationUtils calc;
+
+    @Inject
+    private MenuUtils menu;
+
+    @Inject
+    private ObjectUtils object;
+
+    @Inject
+    private BankUtils bank;
+
+    @Inject
+    private NPCUtils npc;
+
+    @Inject
+    private WalkUtils walk;
+
+    @Inject
+    private KeyboardUtils key;
+
+    @Inject
+    private ConfigManager configManager;
 
     @Inject
     private AgilityPyramidConfig config;
@@ -82,9 +120,6 @@ public class AgilityPyramidPlugin extends Plugin {
 
     @Inject
     ItemManager itemManager;
-
-    @Inject
-    private ChinBreakHandler chinBreakHandler;
 
     Player player;
     AgilityPyramidState state;
@@ -104,13 +139,11 @@ public class AgilityPyramidPlugin extends Plugin {
 
     @Override
     protected void startUp() {
-        chinBreakHandler.registerPlugin(this);
     }
 
     @Override
     protected void shutDown() {
         resetVals();
-        chinBreakHandler.unregisterPlugin(this);
     }
 
     @Provides
@@ -120,7 +153,6 @@ public class AgilityPyramidPlugin extends Plugin {
 
     private void resetVals() {
         overlayManager.remove(overlay);
-        chinBreakHandler.stopPlugin(this);
         startAgility = false;
         botTimer = null;
         inventoryItems.clear();
@@ -136,7 +168,6 @@ public class AgilityPyramidPlugin extends Plugin {
             case "startButton":
                 if (!startAgility) {
                     startAgility = true;
-                    chinBreakHandler.startPlugin(this);
                     state = null;
                     targetMenu = null;
                     botTimer = Instant.now();
@@ -149,12 +180,12 @@ public class AgilityPyramidPlugin extends Plugin {
     }
 
     private long sleepDelay() {
-        sleepLength = utils.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
+        sleepLength = calc.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
         return sleepLength;
     }
 
     private int tickDelay() {
-        int tickLength = (int) utils.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
+        int tickLength = (int) calc.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
         log.debug("tick delay for {} ticks", tickLength);
         return tickLength;
     }
@@ -169,28 +200,28 @@ public class AgilityPyramidPlugin extends Plugin {
             log.debug(String.valueOf(obstacle.getObstacleId()));
 
             if (obstacle.getObstacleType() == AgilityPyramidObstacleType.DECORATION) {
-                DecorativeObject decObstacle = utils.findNearestDecorObject(obstacle.getObstacleId());
+                DecorativeObject decObstacle = object.findNearestDecorObject(obstacle.getObstacleId());
                 if (decObstacle != null) {
                     targetMenu = new MenuEntry("", "", decObstacle.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), decObstacle.getLocalLocation().getSceneX(), decObstacle.getLocalLocation().getSceneY(), false);
-                    utils.setMenuEntry(targetMenu);
-                    utils.delayMouseClick(decObstacle.getConvexHull().getBounds(), sleepDelay());
+                    menu.setEntry(targetMenu);
+                    mouse.delayMouseClick(decObstacle.getConvexHull().getBounds(), sleepDelay());
                     return;
                 }
             }
             if (obstacle.getObstacleType() == AgilityPyramidObstacleType.GROUND_OBJECT) {
-                GroundObject groundObstacle = utils.findNearestGroundObject(obstacle.getObstacleId());
+                GroundObject groundObstacle = object.findNearestGroundObject(obstacle.getObstacleId());
                 if (groundObstacle != null) {
                     targetMenu = new MenuEntry("", "", groundObstacle.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), groundObstacle.getLocalLocation().getSceneX(), groundObstacle.getLocalLocation().getSceneY(), false);
-                    utils.setMenuEntry(targetMenu);
-                    utils.delayMouseClick(groundObstacle.getConvexHull().getBounds(), sleepDelay());
+                    menu.setEntry(targetMenu);
+                    mouse.delayMouseClick(groundObstacle.getConvexHull().getBounds(), sleepDelay());
                     return;
                 }
             }
-            GameObject objObstacle = utils.findNearestGameObject(obstacle.getObstacleId());
+            GameObject objObstacle = object.findNearestGameObject(obstacle.getObstacleId());
             if (objObstacle != null) {
                 targetMenu = new MenuEntry("", "", objObstacle.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), objObstacle.getSceneMinLocation().getX(), objObstacle.getSceneMinLocation().getY(), false);
-                utils.setMenuEntry(targetMenu);
-                utils.delayMouseClick(objObstacle.getConvexHull().getBounds(), sleepDelay());
+                menu.setEntry(targetMenu);
+                mouse.delayMouseClick(objObstacle.getConvexHull().getBounds(), sleepDelay());
                 return;
             }
         } else {
@@ -199,13 +230,13 @@ public class AgilityPyramidPlugin extends Plugin {
     }
 
     public AgilityPyramidState getState() {
-        if (config.humidify() && REGION_IDS.contains(client.getLocalPlayer().getWorldLocation().getRegionID())) {
+        if (REGION_IDS.contains(client.getLocalPlayer().getWorldLocation().getRegionID())) {
             updateWaterskinsLeft();
-            if (waterskinsLeft == 0) {
+            if ((waterskinsLeft == 0) && (config.humidify())) {
                 return CASTING_HUMIDIFY;
             }
         }
-        if (utils.isMoving(beforeLoc)) {
+        if (playerUtils.isMoving(beforeLoc)) {
             if (config.foodToggle()){
                 if (client.getBoostedSkillLevel(Skill.HITPOINTS) < config.minHealth()){
                     return EATING_FOOD;
@@ -231,10 +262,7 @@ public class AgilityPyramidPlugin extends Plugin {
             return MOVING;
 
         }
-        if (chinBreakHandler.shouldBreak(this)) {
-            return HANDLE_BREAK;
-        }
-        if (!utils.isMoving(beforeLoc)) {
+        if (!playerUtils.isMoving(beforeLoc)) {
             return FIND_OBSTACLE;
         }
         return ANIMATING;
@@ -242,7 +270,7 @@ public class AgilityPyramidPlugin extends Plugin {
 
     @Subscribe
     private void onGameTick(GameTick tick) {
-        if (!startAgility || chinBreakHandler.isBreakActive(this)) {
+        if (!startAgility) {
             return;
         }
         player = client.getLocalPlayer();
@@ -256,7 +284,7 @@ public class AgilityPyramidPlugin extends Plugin {
                 log.debug("not in agility pyramid region");
                 return;
             }
-            utils.handleRun(30, 20);
+            playerUtils.handleRun(30, 20);
             state = getState();
             beforeLoc = client.getLocalPlayer().getLocalLocation();
             switch (state) {
@@ -265,20 +293,20 @@ public class AgilityPyramidPlugin extends Plugin {
                     break;
                 case FIND_OBSTACLE:
                     if (player.getAnimation() == 3063) {
-                        utils.walk((new WorldPoint(3045 + utils.getRandomIntBetweenRange(0, 2), 4699 + utils.getRandomIntBetweenRange(0, 1), 3)), 1, sleepDelay());
+                        walk.sceneWalk((new WorldPoint(3045 + calc.getRandomIntBetweenRange(0, 2), 4699 + calc.getRandomIntBetweenRange(0, 1), 3)), 1, sleepDelay());
                     }
                     else {
-                        if (utils.inventoryItemContainsAmount(ItemID.PYRAMID_TOP,3,false,true)) {
+                        if (inventory.containsItemAmount(ItemID.PYRAMID_TOP,3,false,true)) {
                             if (PYRAMID0.intersectsWith(player.getWorldArea())) {
                                 walkToSimon();
                             }
                             else {
                                 findObstacle();
+                                }
                             }
-                        }
                         else {
                             findObstacle();
-                            }
+                        }
                         }
                     break;
                 case EATING_FOOD:
@@ -292,22 +320,26 @@ public class AgilityPyramidPlugin extends Plugin {
                     break;
                 case MOVING:
                     if (player.getWorldLocation().equals(new WorldPoint(3043, 4701, 2))) {
-                        utils.walk((new WorldPoint(3048 + utils.getRandomIntBetweenRange(0, 1), 4697 + utils.getRandomIntBetweenRange(0, 2), 2)), 1, sleepDelay());
+                        walk.sceneWalk((new WorldPoint(3048 + calc.getRandomIntBetweenRange(0, 1), 4697 + calc.getRandomIntBetweenRange(0, 2), 2)), 1, sleepDelay());
                     }
                     break;
                 case HAND_IN_TOPS:
-                    if (utils.inventoryContains(ItemID.PYRAMID_TOP)) {
+                    if (inventory.containsItem(ItemID.PYRAMID_TOP) && !(client.getWidget(231,0)!=null && !client.getWidget(231,0).isHidden()) && !(client.getWidget(219,0)!=null && !client.getWidget(219,0).isHidden())){
                         handInTops();
                         break;
                     }
-                    else {
+                    if (client.getWidget(231,0)!=null && !client.getWidget(231,0).isHidden()){
+                        pressSpace();
+                        break;
+                    }
+                    if (client.getWidget(219,1)!=null && !client.getWidget(219,1).isHidden()) {
+                        sellTops();
+                        break;
+                    }
+                    if (!inventory.containsItem(ItemID.PYRAMID_TOP)){
                         walkToSimon();
                         break;
-                        }
-                case HANDLE_BREAK:
-                    chinBreakHandler.startBreak(this);
-                    timeout = 10;
-                    break;
+                    }
             }
         } else {
             log.debug("client/ player is null or bot isn't started");
@@ -317,56 +349,81 @@ public class AgilityPyramidPlugin extends Plugin {
 
 
     private void walkToSimon() {
-        GroundObject climbRock = utils.findNearestGroundObject(11949);
+        GroundObject climbRock = object.findNearestGroundObject(11949);
             if (climbRock != null) {
             //Climb Climbing rocks, id = 11949 (ground object)
                 targetMenu = new MenuEntry("", "", climbRock.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), climbRock.getLocalLocation().getSceneX(), climbRock.getLocalLocation().getSceneY(), false);
-                utils.setMenuEntry(targetMenu);
-                utils.delayMouseClick(climbRock.getConvexHull().getBounds(), sleepDelay());
+                menu.setEntry(targetMenu);
+                mouse.delayMouseClick(climbRock.getConvexHull().getBounds(), sleepDelay());
             }
         }
-    private void handInTops() {
-        NPC Simon = utils.findNearestNpc(5786);
+
+    private void handInTops(){
+        NPC Simon = npc.findNearestNpc(5786);
             if (Simon != null) {
-            targetMenu = new MenuEntry("Use", "<col=ff9040>Pyramid top<col=ffffff> -> <col=ffff00>Simon Templeton", 1648, 7,
-                    0, 0, false);
-                utils.setModifiedMenuEntry(targetMenu,ItemID.PYRAMID_TOP,utils.getInventoryWidgetItem(ItemID.PYRAMID_TOP).getIndex(),7);
-                utils.delayMouseClick(Simon.getConvexHull().getBounds(), sleepDelay());
+                targetMenu = new MenuEntry("Talk-to", "<col=ffff00>Simon Templeton", Simon.getIndex(), 9,0,0, false);
+                menu.setEntry(targetMenu);
+                mouse.delayMouseClick(Simon.getConvexHull().getBounds(), sleepDelay());
+                return;
             }
-        }
+    }
+
     private void updateWaterskinsLeft(){
         waterskinsLeft=0;
-        waterskinsLeft+=utils.getInventoryItemCount(1823,false)*4; //4 dose waterskin
-        waterskinsLeft+=utils.getInventoryItemCount(1825,false)*3; //3 dose waterskin
-        waterskinsLeft+=utils.getInventoryItemCount(1827,false)*2; //2 dose waterskin
-        waterskinsLeft+=utils.getInventoryItemCount(1829,false); //1 dose waterskin
+        waterskinsLeft+=inventory.getItemCount(1823,false)*4; //4 dose waterskin
+        waterskinsLeft+=inventory.getItemCount(1825,false)*3; //3 dose waterskin
+        waterskinsLeft+=inventory.getItemCount(1827,false)*2; //2 dose waterskin
+        waterskinsLeft+=inventory.getItemCount(1829,false); //1 dose waterskin
 
         if(waterskinsLeft==0){
-            if(!utils.inventoryContains(1831)){
+            if(!inventory.containsItem(1831)){
                 waterskinsLeft=-1; //no waterskins detected
             }
         }
     }
     private void castHumidify() {
-        if ( !utils.inventoryContains(9075) && !utils.runePouchContains(9075)) {
+        if ( !inventory.containsItem(9075) && !inventory.runePouchContains(9075)) {
             utils.sendGameMessage("Out of astrals runes");
             startAgility = false;
         }
         targetMenu = new MenuEntry("Cast", "<col=00ff00>Humidify</col>", 1, 57, -1, 14286954, false);
-        Widget spellWidget = utils.getSpellWidget("Humidify");
+        Widget spellWidget = client.getWidget(WidgetInfo.SPELL_HUMIDIFY);
         if (spellWidget == null) {
             utils.sendGameMessage("Unable to find humidify widget");
             startAgility = false;
         }
-        utils.oneClickCastSpell(utils.getSpellWidgetInfo("Humidify"), targetMenu, sleepDelay());
+        utils.oneClickCastSpell(WidgetInfo.SPELL_HUMIDIFY, targetMenu, sleepDelay());
     }
     private void eatFood() {
-        if (utils.inventoryContains(config.foodType())) {
-            targetMenu = new MenuEntry("", "", utils.getInventoryWidgetItem(config.foodType()).getId(), MenuOpcode.ITEM_FIRST_OPTION.getId(), utils.getInventoryWidgetItem(config.foodType()).getIndex(), 9764864, false);
-            utils.delayMouseClick(utils.getInventoryWidgetItem(config.foodType()).getCanvasBounds(), sleepDelay());
+        if (inventory.containsItem(config.foodType())) {
+            targetMenu = new MenuEntry("", "", inventory.getWidgetItem(config.foodType()).getId(), MenuOpcode.ITEM_FIRST_OPTION.getId(), inventory.getWidgetItem(config.foodType()).getIndex(), 9764864, false);
+            mouse.delayMouseClick(inventory.getWidgetItem(config.foodType()).getCanvasBounds(), sleepDelay());
         }
     }
     private void drinkStam() {
-        utils.drinkStamPot(config.minEnergy());
+        playerUtils.drinkStamPot(config.minEnergy());
                 }
+
+    private void pressSpace()
+    {
+        key.pressKey(KeyEvent.VK_SPACE);
+    }
+
+    private void sellTops()
+    {
+        targetMenu = new MenuEntry("", "", 1, 30, 1, 14352385, false);
+        mouse.delayMouseClick(client.getWidget(219,1).getChild(1).getBounds(), sleepDelay());
+    }
+
+    @Subscribe
+    private void onMenuOptionClicked(MenuOptionClicked event)
+    {
+        if(targetMenu!=null){
+            event.consume();
+            client.invokeMenuAction(targetMenu.getOption(), targetMenu.getTarget(), targetMenu.getIdentifier(), targetMenu.getOpcode(),
+                    targetMenu.getParam0(), targetMenu.getParam1());
+            targetMenu = null;
+        }
+        log.info(event.toString());
+    }
 }
