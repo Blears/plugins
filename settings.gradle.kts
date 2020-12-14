@@ -28,7 +28,8 @@ rootProject.name = "Sandy Plugins"
 include(":agilitypyramid")
 include(":plankmaker")
 include(":cannonballer")
-include(":tabmaker")
+include (":teakchopper")
+
 
 for (project in rootProject.children) {
     project.apply {
@@ -41,3 +42,4 @@ for (project in rootProject.children) {
 }
 include("agilitypyramid")
 include("plankmaker")
+include("orbcharger")
