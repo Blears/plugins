@@ -36,6 +36,8 @@ import net.runelite.api.events.ConfigButtonClicked;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -272,6 +274,14 @@ public class cannonballerPlugin extends Plugin
 		}
 		if (utils.isBankOpen()) {
 			return getBankState();
+		}
+		Widget lvlup = client.getWidget(WidgetInfo.LEVEL_UP_SKILL);
+		if (lvlup != null && !lvlup.isHidden()) {
+			if (utils.inventoryContains(ItemID.STEEL_BAR)) {
+				return WALK_TO_FURNACE;
+			} else {
+				return FIND_BANK;
+			}
 		}
 		if (client.getLocalPlayer().getAnimation() != -1) {
 			return ANIMATING;
