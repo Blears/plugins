@@ -29,7 +29,7 @@ project.extra["PluginName"] = "Sandy Plankmaker"
 project.extra["PluginDescription"] = "Automatically chops oaks and makes planks at WC guild"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "2.3.4+");
+    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "2.3.6+");
 }
 
 tasks {
