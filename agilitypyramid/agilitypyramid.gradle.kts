@@ -29,7 +29,7 @@ project.extra["PluginName"] = "Sandy Pyramid"
 project.extra["PluginDescription"] = "Automatically runs agility pyramid"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "2.3.4+");
+    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "2.3.6+");
 }
 
 tasks {

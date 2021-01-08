@@ -29,7 +29,7 @@ project.extra["PluginName"] = "Sandy Cannonballer"
 project.extra["PluginDescription"] = "Automatically makes cannonballs"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.1+");
+    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.3+");
 }
 
 tasks {
