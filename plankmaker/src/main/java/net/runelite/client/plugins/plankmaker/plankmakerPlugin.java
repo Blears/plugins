@@ -411,13 +411,15 @@ public class plankmakerPlugin extends Plugin
 
 	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		if (!startPlankMaker)
 		{
-			if(targetMenu!=null){
-				event.consume();
-				client.invokeMenuAction(targetMenu.getOption(), targetMenu.getTarget(), targetMenu.getIdentifier(), targetMenu.getOpcode(),
-						targetMenu.getParam0(), targetMenu.getParam1());
-				targetMenu = null;
-			}
-		log.info(event.toString());
+			return;
+		}
+		if (targetMenu != null)
+		{
+			log.debug("MenuEntry string event: " + targetMenu.toString());
+			timeout = tickDelay();
+		}
 	}
 }

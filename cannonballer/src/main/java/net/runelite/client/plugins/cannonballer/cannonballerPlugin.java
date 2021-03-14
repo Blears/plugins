@@ -396,7 +396,16 @@ public class cannonballerPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onMenuOptionClicked(MenuOptionClicked event){
-		log.info(event.toString());
+	private void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		if (!startCannonBaller)
+		{
+			return;
+		}
+		if (targetMenu != null)
+		{
+			log.debug("MenuEntry string event: " + targetMenu.toString());
+			timeout = tickDelay();
+		}
 	}
 }

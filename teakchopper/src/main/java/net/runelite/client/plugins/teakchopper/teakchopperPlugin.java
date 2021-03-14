@@ -419,7 +419,16 @@ public class teakchopperPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onMenuOptionClicked(MenuOptionClicked event){
-		log.info(event.toString());
+	private void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		if (!startTeakChopper)
+		{
+			return;
+		}
+		if (targetMenu != null)
+		{
+			log.debug("MenuEntry string event: " + targetMenu.toString());
+			timeout = tickDelay();
+		}
 	}
 }
