@@ -23,30 +23,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-object ProjectVersions {
-    const val openosrsVersion = "4.0.1"
-    const val apiVersion = "^1.0.0"
+version = "1.0.0"
+
+project.extra["PluginName"] = "Sandy Teakchopper"
+project.extra["PluginDescription"] = "Automatically chops and banks teaks on Fossil Island"
+
+dependencies {
+    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "3.1.0+");
 }
 
-object Libraries {
-    private object Versions {
-        const val apacheCommonsText = "1.2"
-        const val gson = "2.8.5"
-        const val guice = "4.1.0"
-        const val lombok = "1.18.4"
-        const val okhttp3 = "3.7.0"
-        const val pf4j = "3.6.0"
-        const val findbugs = "3.0.2"
-        const val rxjava = "3.0.10"
+tasks {
+    jar {
+        manifest {
+            attributes(mapOf(
+                    "Plugin-Version" to project.version,
+                    "Plugin-Id" to nameToId(project.extra["PluginName"] as String),
+                    "Plugin-Provider" to project.extra["PluginProvider"],
+                    "Plugin-Dependencies" to
+                            arrayOf(
+                                    nameToId("BotUtils"),
+                                    "chinbreakhandler-plugin"
+                            ).joinToString(),
+                    "Plugin-Description" to project.extra["PluginDescription"],
+                    "Plugin-License" to project.extra["PluginLicense"]
+            ))
+        }
     }
-
-    const val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
-    const val gson = "com.google.code.gson:gson:${Versions.gson}"
-    const val guice = "com.google.inject:guice:${Versions.guice}:no_aop"
-    const val lombok = "org.projectlombok:lombok:${Versions.lombok}"
-    const val okhttp3 = "com.squareup.okhttp3:okhttp:${Versions.okhttp3}"
-    const val pf4j = "org.pf4j:pf4j:${Versions.pf4j}"
-    const val findbugs = "com.google.code.findbugs:jsr305:${Versions.findbugs}"
-    const val rxjava = "io.reactivex.rxjava3:rxjava:${Versions.rxjava}"
-
 }

@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.plankmaker;
+package net.runelite.client.plugins.template;
 
 import com.openosrs.client.ui.overlay.components.table.TableAlignment;
 import com.openosrs.client.ui.overlay.components.table.TableComponent;
@@ -20,31 +20,30 @@ import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
 import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
-
 @Slf4j
 @Singleton
-class plankmakerOverlay extends OverlayPanel
+class templateOverlay extends OverlayPanel
 {
-	private final plankmakerPlugin plugin;
-	private final plankmakerConfiguration config;
+	private final templatePlugin plugin;
+	private final templateConfiguration config;
 
 	String timeFormat;
 	private String infoStatus = "Starting...";
 
 	@Inject
-	private plankmakerOverlay(final Client client, final plankmakerPlugin plugin, final plankmakerConfiguration config)
+	private templateOverlay(final Client client, final templatePlugin plugin, final templateConfiguration config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.BOTTOM_LEFT);
 		this.plugin = plugin;
 		this.config = config;
-		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Plank Maker overlay"));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "template overlay"));
 	}
 
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (plugin.botTimer == null || !plugin.startPlankMaker || !config.enableUI())
+		if (plugin.botTimer == null || !plugin.startTemplate || !config.enableUI())
 		{
 			log.debug("Overlay conditions not met, not starting overlay");
 			return null;
@@ -75,14 +74,14 @@ class plankmakerOverlay extends OverlayPanel
 			panelComponent.setPreferredSize(new Dimension(200, 200));
 			panelComponent.setBorder(new Rectangle(5, 5, 5, 5));
 			panelComponent.getChildren().add(TitleComponent.builder()
-				.text("Sandy Plankmaker")
-				.color(ColorUtil.fromHex("#ffbf00"))
-				.build());
+					.text("Sandy template")
+					.color(ColorUtil.fromHex("#ffbf00"))
+					.build());
 			panelComponent.getChildren().add(tableComponent);
 			panelComponent.getChildren().add(TitleComponent.builder()
-				.text("Delays")
-				.color(ColorUtil.fromHex("#ffbf00"))
-				.build());
+					.text("Delays")
+					.color(ColorUtil.fromHex("#ffbf00"))
+					.build());
 			panelComponent.getChildren().add(tableDelayComponent);
 		}
 		return super.render(graphics);

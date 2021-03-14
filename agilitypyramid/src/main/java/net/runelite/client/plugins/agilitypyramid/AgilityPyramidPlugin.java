@@ -59,8 +59,7 @@ import static net.runelite.client.plugins.agilitypyramid.AgilityPyramidState.*;
         name = "Sandy Agility Pyramid",
         enabledByDefault = false,
         description = "Sandy's Auto Agility Pyramid plugin",
-        tags = {"sandy", "agility", "pyramid"},
-        type = PluginType.SKILLING
+        tags = {"sandy", "agility", "pyramid"}
 )
 @Slf4j
 public class AgilityPyramidPlugin extends Plugin {
@@ -202,7 +201,7 @@ public class AgilityPyramidPlugin extends Plugin {
             if (obstacle.getObstacleType() == AgilityPyramidObstacleType.DECORATION) {
                 DecorativeObject decObstacle = object.findNearestDecorObject(obstacle.getObstacleId());
                 if (decObstacle != null) {
-                    targetMenu = new MenuEntry("", "", decObstacle.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), decObstacle.getLocalLocation().getSceneX(), decObstacle.getLocalLocation().getSceneY(), false);
+                    targetMenu = new MenuEntry("", "", decObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), decObstacle.getLocalLocation().getSceneX(), decObstacle.getLocalLocation().getSceneY(), false);
                     menu.setEntry(targetMenu);
                     mouse.delayMouseClick(decObstacle.getConvexHull().getBounds(), sleepDelay());
                     return;
@@ -211,7 +210,7 @@ public class AgilityPyramidPlugin extends Plugin {
             if (obstacle.getObstacleType() == AgilityPyramidObstacleType.GROUND_OBJECT) {
                 GroundObject groundObstacle = object.findNearestGroundObject(obstacle.getObstacleId());
                 if (groundObstacle != null) {
-                    targetMenu = new MenuEntry("", "", groundObstacle.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), groundObstacle.getLocalLocation().getSceneX(), groundObstacle.getLocalLocation().getSceneY(), false);
+                    targetMenu = new MenuEntry("", "", groundObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), groundObstacle.getLocalLocation().getSceneX(), groundObstacle.getLocalLocation().getSceneY(), false);
                     menu.setEntry(targetMenu);
                     mouse.delayMouseClick(groundObstacle.getConvexHull().getBounds(), sleepDelay());
                     return;
@@ -219,7 +218,7 @@ public class AgilityPyramidPlugin extends Plugin {
             }
             GameObject objObstacle = object.findNearestGameObject(obstacle.getObstacleId());
             if (objObstacle != null) {
-                targetMenu = new MenuEntry("", "", objObstacle.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), objObstacle.getSceneMinLocation().getX(), objObstacle.getSceneMinLocation().getY(), false);
+                targetMenu = new MenuEntry("", "", objObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), objObstacle.getSceneMinLocation().getX(), objObstacle.getSceneMinLocation().getY(), false);
                 menu.setEntry(targetMenu);
                 mouse.delayMouseClick(objObstacle.getConvexHull().getBounds(), sleepDelay());
                 return;
@@ -352,7 +351,7 @@ public class AgilityPyramidPlugin extends Plugin {
         GroundObject climbRock = object.findNearestGroundObject(11949);
             if (climbRock != null) {
             //Climb Climbing rocks, id = 11949 (ground object)
-                targetMenu = new MenuEntry("", "", climbRock.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), climbRock.getLocalLocation().getSceneX(), climbRock.getLocalLocation().getSceneY(), false);
+                targetMenu = new MenuEntry("", "", climbRock.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), climbRock.getLocalLocation().getSceneX(), climbRock.getLocalLocation().getSceneY(), false);
                 menu.setEntry(targetMenu);
                 mouse.delayMouseClick(climbRock.getConvexHull().getBounds(), sleepDelay());
             }
@@ -396,7 +395,7 @@ public class AgilityPyramidPlugin extends Plugin {
     }
     private void eatFood() {
         if (inventory.containsItem(config.foodType())) {
-            targetMenu = new MenuEntry("", "", inventory.getWidgetItem(config.foodType()).getId(), MenuOpcode.ITEM_FIRST_OPTION.getId(), inventory.getWidgetItem(config.foodType()).getIndex(), 9764864, false);
+            targetMenu = new MenuEntry("", "", inventory.getWidgetItem(config.foodType()).getId(), MenuAction.ITEM_FIRST_OPTION.getId(), inventory.getWidgetItem(config.foodType()).getIndex(), 9764864, false);
             mouse.delayMouseClick(inventory.getWidgetItem(config.foodType()).getCanvasBounds(), sleepDelay());
         }
     }

@@ -23,13 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-rootProject.name = "Sandy Plugins"
+rootProject.name = "sandy-plugins"
 
 include(":agilitypyramid")
 include(":plankmaker")
 include(":cannonballer")
 include (":teakchopper")
-
+include (":template")
 
 for (project in rootProject.children) {
     project.apply {
@@ -40,6 +40,3 @@ for (project in rootProject.children) {
         require(buildFile.isFile) { "Project '${project.path} must have a $buildFile build script" }
     }
 }
-include("agilitypyramid")
-include("plankmaker")
-include("orbcharger")

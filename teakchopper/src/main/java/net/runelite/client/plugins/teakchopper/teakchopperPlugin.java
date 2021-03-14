@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.plankmaker;
+package net.runelite.client.plugins.teakchopper;
 
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
@@ -38,69 +38,58 @@ import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.plugins.Plugin;
-import net.runelite.client.plugins.PluginDependency;
-import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.PluginManager;
+import net.runelite.client.plugins.*;
 import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static net.runelite.client.plugins.plankmaker.plankmakerState.*;
+import static net.runelite.client.plugins.teakchopper.teakchopperState.*;
+
 
 @Extension
 @PluginDependency(iUtils.class)
 @PluginDescriptor(
-	name = "Sandy Plankmaker",
+	name = "Sandy Teak Chopper",
 	enabledByDefault = false,
-	description = "Makes planks in WC Guild",
-	tags = {"plank, maker, construction, sandy"}
+	description = "Chops teaks and banks at Fossil Island",
+	tags = {"teak, chopper, woodcutting, sandy"}
 )
 @Slf4j
-public class plankmakerPlugin extends Plugin
+public class teakchopperPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private plankmakerConfiguration config;
+	private teakchopperConfiguration config;
 
 	@Inject
 	private iUtils utils;
-
 	@Inject
 	private MouseUtils mouse;
-
+	@Inject
+	private KeyboardUtils key;
 	@Inject
 	private PlayerUtils playerUtils;
-
 	@Inject
 	private InventoryUtils inventory;
-
 	@Inject
 	private InterfaceUtils interfaceUtils;
-
 	@Inject
 	private CalculationUtils calc;
-
 	@Inject
 	private MenuUtils menu;
-
 	@Inject
 	private ObjectUtils object;
-
 	@Inject
 	private BankUtils bank;
-
 	@Inject
 	private NPCUtils npc;
-
 	@Inject
 	private WalkUtils walk;
 
@@ -114,35 +103,33 @@ public class plankmakerPlugin extends Plugin
 	OverlayManager overlayManager;
 
 	@Inject
-	private plankmakerOverlay overlay;
+	private teakchopperOverlay overlay;
 
 
-	plankmakerState state;
+	teakchopperState state;
 	GameObject targetObject;
-	NPC targetNPC;
 	MenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
 	Player player;
 
-	WorldArea BANK = new WorldArea(new WorldPoint(1644,3496,0),new WorldPoint(1649,3494,0));
-	WorldArea GUILD_MID = new WorldArea(new WorldPoint(1595,3497,0),new WorldPoint(1610,3500,0));
-	WorldArea OAK_TREES = new WorldArea(new WorldPoint(1609,3506,0),new WorldPoint(1629,3514,0));
-	WorldPoint SAWMILL = new WorldPoint(1624,3500,0);
+	WorldArea TEAKS = new WorldArea(new WorldPoint(3700,3830,0),new WorldPoint(3720,3840,0));
+	WorldArea BANK = new WorldArea(new WorldPoint(3711,3800,0),new WorldPoint(3745,3816,0));
 
 
 	int timeout = 0;
 	long sleepLength;
-	boolean startPlankMaker;
+	boolean startTeakChopper;
 	private final Set<Integer> itemIds = new HashSet<>();
 	private final Set<Integer> requiredIds = new HashSet<>();
+	private final Set<Integer> TREES = Set.of(30481, 30482);
 
 
 	@Provides
-	plankmakerConfiguration provideConfig(ConfigManager configManager)
+	teakchopperConfiguration provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(plankmakerConfiguration.class);
+		return configManager.getConfig(teakchopperConfiguration.class);
 	}
 
 	private void resetVals()
@@ -152,29 +139,28 @@ public class plankmakerPlugin extends Plugin
 		timeout = 0;
 		botTimer = null;
 		skillLocation = null;
-		startPlankMaker = false;
+		startTeakChopper = false;
 		requiredIds.clear();
 	}
 
 	@Subscribe
 	private void onConfigButtonPressed(ConfigButtonClicked configButtonClicked)
 	{
-		if (!configButtonClicked.getGroup().equalsIgnoreCase("plankmaker"))
+		if (!configButtonClicked.getGroup().equalsIgnoreCase("teakchopper"))
 		{
 			return;
 		}
 		log.info("button {} pressed!", configButtonClicked.getKey());
 		if (configButtonClicked.getKey().equals("startButton"))
 		{
-			if (!startPlankMaker)
+			if (!startTeakChopper)
 			{
-				startPlankMaker = true;
+				startTeakChopper = true;
 				state = null;
 				targetMenu = null;
 				botTimer = Instant.now();
 				setLocation();
 				overlayManager.add(overlay);
-				requiredIds.add(995);
 			}
 			else
 			{
@@ -186,11 +172,11 @@ public class plankmakerPlugin extends Plugin
 	@Subscribe
 	private void onConfigChanged(ConfigChanged event)
 	{
-		if (!event.getGroup().equals("plankmaker"))
+		if (!event.getGroup().equals("teakchopper"))
 		{
 			return;
 		}
-		startPlankMaker = false;
+		startTeakChopper = false;
 	}
 
 	public void setLocation()
@@ -221,42 +207,42 @@ public class plankmakerPlugin extends Plugin
 		return tickLength;
 	}
 
-	private void interactOakTree()
+	private void interactTeakTree1()
 	{
-		targetObject = object.findNearestGameObjectWithin(player.getWorldLocation(), 5, Collections.singleton(10820));
-		if (targetObject != null)
-		{
-			targetMenu = new MenuEntry("Chop down", "<col=ffff>Oak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+		targetObject = object.findNearestGameObject(30482);
+		if (targetObject != null) {
+				targetMenu = new MenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+				menu.setEntry(targetMenu);
+				mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			}
+	}
+
+	private void interactTeakTree2()
+	{
+		targetObject = object.findNearestGameObject(30480);
+		if (targetObject != null) {
+			targetMenu = new MenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
-		else
-		{
-			log.info("Oak tree is null");
-		}
 	}
 
-	private void useSawmill()
+	private void interactTeakTree3()
 	{
-		targetNPC = npc.findNearestNpcWithin(player.getWorldLocation(), 25, Collections.singleton(3101));
-		if (targetNPC != null)
-		{
-			targetMenu = new MenuEntry("Buy-plank", "<col=ffff00>Sawmill operator", targetNPC.getIndex(), 11, 0, 0, false);
+		targetObject = object.findNearestGameObject(30481);
+		if (targetObject != null) {
+			targetMenu = new MenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
-			mouse.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
-		}
-		else
-		{
-			log.info("Banker is null");
+			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
 	}
 
 	private void openBank()
 	{
-		targetObject = object.findNearestGameObject(26254);
+		targetObject = object.findNearestGameObject(31427);
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("", "", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new MenuEntry("Bank", "<col=ffff>Bank chest", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -266,48 +252,39 @@ public class plankmakerPlugin extends Plugin
 		}
 	}
 
-	private plankmakerState getBankState()
+	private teakchopperState getBankState()
 	{
 		if(inventory.isFull()){
 			return DEPOSIT_ITEMS;
 		}
 		if(!inventory.isFull()){
-			return WALK_TO_OAK;
+			return WALK_TO_TEAK;
 		}
 		return UNHANDLED_STATE;
 	}
 
-	public plankmakerState getState() {
+	public teakchopperState getState() {
 		if (timeout > 0) {
 			return TIMEOUT;
 		}
-		if (!inventory.containsItem(requiredIds)) {
-			return MISSING_ITEMS;
-		}
 		if (playerUtils.isMoving(beforeLoc)) {
-			timeout = 2 + tickDelay();
 			return MOVING;
 		}
-		if (bank.isDepositBoxOpen()) {
+		if (bank.isOpen()) {
 			return getBankState();
 		}
 		if (client.getLocalPlayer().getAnimation() != -1) {
 			return ANIMATING;
 		}
 		if (inventory.isFull()) {
-			return getPlankMakerState();
+			return getTeakChopperState();
 		}
-		if (player.getWorldArea().intersectsWith(OAK_TREES)) {
-			return FIND_OAK;
-		}
-		if (player.getWorldArea().intersectsWith(GUILD_MID)) {
-			if (!inventory.isFull()) {
-				return WALK_TO_OAK;
-			}
+		if (!player.getWorldArea().intersectsWith(BANK)) {
+			return FIND_TEAK;
 		}
 		if (player.getWorldArea().intersectsWith(BANK)) {
 			if (!inventory.isFull()) {
-				return WALK_TO_OAK;
+				return WALK_TO_TEAK;
 			}
 		}
 		return UNHANDLED_STATE;
@@ -316,7 +293,7 @@ public class plankmakerPlugin extends Plugin
 	@Subscribe
 	private void onGameTick(GameTick tick)
 	{
-		if (!startPlankMaker)
+		if (!startTeakChopper)
 		{
 			return;
 		}
@@ -326,7 +303,7 @@ public class plankmakerPlugin extends Plugin
 			if (!client.isResized())
 			{
 				utils.sendGameMessage("Client must be set to resizable");
-				startPlankMaker = false;
+				startTeakChopper = false;
 				return;
 			}
 			state = getState();
@@ -337,41 +314,80 @@ public class plankmakerPlugin extends Plugin
 					playerUtils.handleRun(30, 20);
 					timeout--;
 					break;
-				case FIND_OAK:
-					interactOakTree();
-					timeout = tickDelay();
-					break;
-				case WALK_TO_SAWMILL:
-					useSawmill();
-					break;
-				case MAKE_PLANK:
-					makePlank();
+				case FIND_TEAK: //tree 1 = east, tree 2 is middle, tree 3 is west
+					if (client.getVarbitValue(4771) == 16 && client.getVarbitValue(4772) == 16){
+						interactTeakTree1();
+						timeout = tickDelay();
+						}
+					if (client.getVarbitValue(4771) == 17 && client.getVarbitValue(4772) == 16) { //if right tree = cut
+						interactTeakTree2();
+						timeout = tickDelay();
+					}
+					if (client.getVarbitValue(4772) == 17 && client.getVarbitValue(4771) == 16) {// if left tree = cut{
+						interactTeakTree1();
+						timeout = tickDelay();
+					}
+					if (client.getVarbitValue(4771) == 17 && client.getVarbitValue(4772) == 17 && client.getVarbitValue(4773) == 16){ //if both = cut
+						interactTeakTree3();
+						timeout = tickDelay();
+					}
+					if (client.getVarbitValue(4773) == 17 && client.getVarbitValue(4771) == 16){
+						interactTeakTree1();
+						timeout = tickDelay();
+					}
+					if (client.getVarbitValue(4773) == 17 && client.getVarbitValue(4772) == 17 && client.getVarbitValue(4771) == 16){
+						interactTeakTree1();
+						timeout = tickDelay();
+					}
+					if (client.getVarbitValue(4773) == 17 && client.getVarbitValue(4772) == 16 && client.getVarbitValue(4771) == 17){
+						interactTeakTree2();
+						timeout = tickDelay();
+					}
+					if (client.getVarbitValue(4771) == 17 && client.getVarbitValue(4772) == 17 && client.getVarbitValue(4773) == 17){
+						timeout = 5 + tickDelay();
+					}
 					timeout = tickDelay();
 					break;
 				case MISSING_ITEMS:
-					startPlankMaker = false;
+					startTeakChopper = false;
 					utils.sendGameMessage("Missing required items IDs: " + String.valueOf(requiredIds) + " from inventory. Stopping.");
 					resetVals();
 					break;
 				case ANIMATING:
 				case MOVING:
 					playerUtils.handleRun(30, 20);
-					timeout = tickDelay();
 					break;
-				case WALK_TO_MIDDLE:
-					walk.sceneWalk(new WorldPoint(1637+calc.getRandomIntBetweenRange(-3,3),3507+calc.getRandomIntBetweenRange(-1,1),0),0,sleepDelay());
-					timeout = tickDelay();
+				case WALK_TO_BANK:
+					targetObject = object.findNearestGameObject(31482);
+					if (targetObject != null)
+					{
+						targetMenu = new MenuEntry("Climb through", "<col=ffff>Hole", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+						menu.setEntry(targetMenu);
+						mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+					}
+					else
+					{
+						log.info("cave is null");
+					}
 					break;
-				case WALK_TO_OAK:
-					walk.sceneWalk(new WorldPoint(1619+calc.getRandomIntBetweenRange(0,1),3508+calc.getRandomIntBetweenRange(0,3),0),0,sleepDelay());
-					timeout = tickDelay();
+				case WALK_TO_TEAK:
+					targetObject = object.findNearestGameObject(31481 );
+					if (targetObject != null)
+					{
+						targetMenu = new MenuEntry("Climb through", "<col=ffff>Hole", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+						menu.setEntry(targetMenu);
+						mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+					}
+					else
+					{
+						log.info("cave is null");
+					}
 					break;
 				case FIND_BANK:
 					openBank();
-					timeout = tickDelay();
 					break;
 				case DEPOSIT_ITEMS:
-					bank.depositAllOfItem(8778);
+					bank.depositAllExcept(requiredIds);
 					break;
 			}
 		}
@@ -380,44 +396,30 @@ public class plankmakerPlugin extends Plugin
 	@Subscribe
 	private void onGameStateChanged(GameStateChanged event)
 	{
-		if (event.getGameState() == GameState.LOGGED_IN && startPlankMaker)
+		if (event.getGameState() == GameState.LOGGED_IN && startTeakChopper)
 		{
 			state = TIMEOUT;
 			timeout = 2;
 		}
 	}
 
-	private void makePlank() {
-		targetMenu = new MenuEntry("Make", "<col=ff9040>Oak - 250gp</col>", 1, 57, -1, 17694735, false);
-		mouse.delayMouseClick(client.getWidget(270,15).getBounds(), sleepDelay());
-		}
 
-	private plankmakerState getPlankMakerState()
+	private teakchopperState getTeakChopperState()
 	{
-		log.info("getting plank maker state");
+		log.info("getting teak chopper state");
 		if(inventory.isFull()){
-			if(player.getWorldArea().intersectsWith(OAK_TREES)){
-				return WALK_TO_SAWMILL;
+			if(player.getWorldArea().intersectsWith(TEAKS)){
+				return WALK_TO_BANK;
 			}
-			if((player.getWorldLocation().equals(SAWMILL) && inventory.containsItem(8778)) || (player.getWorldArea().intersectsWith(GUILD_MID)) || (player.getWorldArea().intersectsWith(BANK))){
+			if((player.getWorldArea().intersectsWith(BANK)) && inventory.containsItem(6333)){
 				return FIND_BANK;
-			}
-			if (client.getWidget(270,15)!=null){
-				return MAKE_PLANK;
 			}
 		}
 		return TIMEOUT;
 	}
 
 	@Subscribe
-	private void onMenuOptionClicked(MenuOptionClicked event)
-		{
-			if(targetMenu!=null){
-				event.consume();
-				client.invokeMenuAction(targetMenu.getOption(), targetMenu.getTarget(), targetMenu.getIdentifier(), targetMenu.getOpcode(),
-						targetMenu.getParam0(), targetMenu.getParam1());
-				targetMenu = null;
-			}
+	private void onMenuOptionClicked(MenuOptionClicked event){
 		log.info(event.toString());
 	}
 }

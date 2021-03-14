@@ -23,12 +23,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.cannonballer;
+package net.runelite.client.plugins.teakchopper;
 
 import net.runelite.client.config.*;
 
-@ConfigGroup("cannonballer")
-public interface cannonballerConfiguration extends Config
+@ConfigGroup("teakchopper")
+public interface teakchopperConfiguration extends Config
 {
 
 	@ConfigSection(
@@ -216,23 +216,23 @@ public interface cannonballerConfiguration extends Config
 	)
 	default String instructions()
 	{
-		return "Makes cannonballs at Edgeville furnace. Make sure to have an ammo mould and steel bars in the bank";
+		return "Cuts and banks teaks on Fossil Island. Requires 70 agility and an equipped axe.";
 	}
 
 	@ConfigTitle(
-		keyName = "cannonballerTitle",
-		name = "Cannonballer Configuration",
+		keyName = "teakchopperTitle",
+		name = "Teak Chopper Configuration",
 		description = "",
 		position = 60
 	)
-	String cannonballerTitle = "cannonballerTitle";
+	String teakchopperTitle = "teakchopperTitle";
 
 	@ConfigItem(
 		keyName = "enableUI",
 		name = "Enable UI",
 		description = "Enable to turn on in game UI",
 		position = 140,
-		title = "cannonballerTitle"
+		title = "teakchopperTitle"
 	)
 	default boolean enableUI()
 	{

@@ -23,13 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.0.2"
+version = "1.1.0"
 
 project.extra["PluginName"] = "Sandy Cannonballer"
 project.extra["PluginDescription"] = "Automatically makes cannonballs"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "botutils", version = "4.9.3+");
+    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "3.1.0+");
 }
 
 tasks {

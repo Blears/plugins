@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.plankmaker;
+package net.runelite.client.plugins.teakchopper;
 
 import com.openosrs.client.ui.overlay.components.table.TableAlignment;
 import com.openosrs.client.ui.overlay.components.table.TableComponent;
@@ -23,28 +23,28 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
 @Slf4j
 @Singleton
-class plankmakerOverlay extends OverlayPanel
+class teakchopperOverlay extends OverlayPanel
 {
-	private final plankmakerPlugin plugin;
-	private final plankmakerConfiguration config;
+	private final teakchopperPlugin plugin;
+	private final teakchopperConfiguration config;
 
 	String timeFormat;
 	private String infoStatus = "Starting...";
 
 	@Inject
-	private plankmakerOverlay(final Client client, final plankmakerPlugin plugin, final plankmakerConfiguration config)
+	private teakchopperOverlay(final Client client, final teakchopperPlugin plugin, final teakchopperConfiguration config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.BOTTOM_LEFT);
 		this.plugin = plugin;
 		this.config = config;
-		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Plank Maker overlay"));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Teak chopper overlay"));
 	}
 
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (plugin.botTimer == null || !plugin.startPlankMaker || !config.enableUI())
+		if (plugin.botTimer == null || !plugin.startTeakChopper || !config.enableUI())
 		{
 			log.debug("Overlay conditions not met, not starting overlay");
 			return null;
@@ -75,7 +75,7 @@ class plankmakerOverlay extends OverlayPanel
 			panelComponent.setPreferredSize(new Dimension(200, 200));
 			panelComponent.setBorder(new Rectangle(5, 5, 5, 5));
 			panelComponent.getChildren().add(TitleComponent.builder()
-				.text("Sandy Plankmaker")
+				.text("Sandy Teak Chopper")
 				.color(ColorUtil.fromHex("#ffbf00"))
 				.build());
 			panelComponent.getChildren().add(tableComponent);

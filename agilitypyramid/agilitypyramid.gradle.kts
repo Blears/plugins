@@ -23,13 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "2.0.0"
+version = "2.1.0"
 
 project.extra["PluginName"] = "Sandy Pyramid"
 project.extra["PluginDescription"] = "Automatically runs agility pyramid"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "2.3.6+");
+    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "3.1.0+");
 }
 
 tasks {

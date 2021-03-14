@@ -37,10 +37,7 @@ public interface AgilityPyramidConfig extends Config
 		description = "Configure how the bot handles sleep delays in milliseconds",
 		position = 2
 	)
-	default boolean delayConfig()
-	{
-		return false;
-	}
+	String delayConfig = "delayConfig";
 
 	@Range(
 		min = 0,
@@ -124,10 +121,7 @@ public interface AgilityPyramidConfig extends Config
 		description = "Configure how the bot handles game tick delays, 1 game tick equates to roughly 600ms",
 		position = 8
 	)
-	default boolean delayTickConfig()
-	{
-		return false;
-	}
+	String delayTickConfig = "delayTickConfig";
 
 	@Range(
 		min = 0,
@@ -205,23 +199,20 @@ public interface AgilityPyramidConfig extends Config
 		return false;
 	}
 
-	@ConfigTitleSection(
+	@ConfigTitle(
 		keyName = "agilityTitle",
 		name = "Plugin Configuration",
 		description = "",
 		position = 14
 	)
-	default Title agilityTitle()
-	{
-		return new Title();
-	}
+	String agilityTitle = "agilityTitle";
 
 	@ConfigItem(
 			keyName = "instructions1",
 			name = "",
 			description = "Instructions. Don't enter anything into this field",
 			position = 15,
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default String instructions1()
 	{
@@ -233,7 +224,7 @@ public interface AgilityPyramidConfig extends Config
 			name = "Use Humidify",
 			description = "Enable to use humidify when out of waterskins",
 			position = 17,
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default boolean humidify()
 	{
@@ -245,7 +236,7 @@ public interface AgilityPyramidConfig extends Config
 			name = "Use stamina pots",
 			description = "Drinks stamina potions",
 			position = 18,
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default boolean useStam() { return false; }
 
@@ -256,7 +247,7 @@ public interface AgilityPyramidConfig extends Config
 			position = 19,
 			hidden = true,
 			unhide = "useStam",
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default int minEnergy() { return 35; }
 
@@ -265,7 +256,7 @@ public interface AgilityPyramidConfig extends Config
 			name = "Eat Food",
 			description = "Enable to eat food when damaged,",
 			position = 21,
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default boolean foodToggle() {return false;}
 
@@ -276,7 +267,7 @@ public interface AgilityPyramidConfig extends Config
 			position = 22,
 			hidden = true,
 			unhide = "foodToggle",
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default String instructions2()
 	{
@@ -291,7 +282,7 @@ public interface AgilityPyramidConfig extends Config
 			position = 23,
 			hidden = true,
 			unhide = "foodToggle",
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default int foodType() { return 7946; }
 
@@ -303,7 +294,7 @@ public interface AgilityPyramidConfig extends Config
 			position = 24,
 			hidden = true,
 			unhide = "foodToggle",
-			titleSection = "agilityTitle"
+			title = "agilityTitle"
 	)
 	default int minHealth() { return 30; }
 
@@ -312,7 +303,7 @@ public interface AgilityPyramidConfig extends Config
 		name = "Stop bot at HP",
 		description = "Stop if HP goes below given threshold",
 		position = 28,
-		titleSection = "agilityTitle"
+		title = "agilityTitle"
 	)
 	default int lowHP()
 	{
@@ -350,7 +341,7 @@ public interface AgilityPyramidConfig extends Config
 		name = "Enable UI",
 		description = "Enable to turn on in game UI",
 		position = 29,
-		titleSection = "agilityTitle"
+		title = "agilityTitle"
 	)
 	default boolean enableUI()
 	{

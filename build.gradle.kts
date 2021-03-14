@@ -6,6 +6,9 @@ buildscript {
     repositories {
         gradlePluginPortal()
     }
+    dependencies{
+        classpath("net.sf.proguard:proguard-gradle:6.2.2")
+    }
 }
 
 plugins {
@@ -13,7 +16,7 @@ plugins {
     checkstyle
 }
 
-project.extra["GithubUrl"] = "https://github.com/bucketofsandy/sandy-plugins"
+project.extra["GithubUrl"] = "https://github.com/bucketofsandy/sandy-premium"
 
 apply<BootstrapPlugin>()
 
@@ -36,7 +39,7 @@ subprojects {
     group = "com.openosrs.externals"
 
     project.extra["PluginProvider"] = "Sandy#2376"
-    project.extra["ProjectSupportUrl"] = ""
+    project.extra["ProjectSupportUrl"] = "https://discord.gg/TD9RU87Prh"
     project.extra["PluginLicense"] = "3-Clause BSD License"
 
     repositories {
@@ -60,8 +63,8 @@ subprojects {
     apply<JavaPlugin>()
 
     dependencies {
-        annotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.12")
-        annotationProcessor(group = "org.pf4j", name = "pf4j", version = "3.2.0")
+        annotationProcessor(Libraries.lombok)
+        annotationProcessor(Libraries.pf4j)
         implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
         implementation(group = "com.google.code.gson", name = "gson", version = "2.8.6")
         implementation(group = "com.google.guava", name = "guava", version = "28.2-jre")
@@ -73,16 +76,23 @@ subprojects {
         implementation(group = "org.pf4j", name = "pf4j", version = "3.2.0")
         implementation(group = "org.projectlombok", name = "lombok", version = "1.18.12")
         implementation(group = "org.pushing-pixels", name = "radiance-substance", version = "2.5.1")
+        implementation(group = "org.json", name = "json", version = "20201115")
+
+
 
         compileOnly("com.openosrs:runelite-api:$openosrsVersion+")
         compileOnly("com.openosrs.rs:runescape-api:$openosrsVersion+")
         compileOnly("com.openosrs:runelite-client:$openosrsVersion+")
         compileOnly("com.openosrs:http-api:$openosrsVersion+")
 
+        compileOnly(Libraries.findbugs)
+        compileOnly(Libraries.apacheCommonsText)
+        compileOnly(Libraries.gson)
         compileOnly(Libraries.guice)
-        compileOnly(Libraries.javax)
         compileOnly(Libraries.lombok)
+        compileOnly(Libraries.okhttp3)
         compileOnly(Libraries.pf4j)
+        compileOnly(Libraries.rxjava)
     }
 
     configure<JavaPluginConvention> {

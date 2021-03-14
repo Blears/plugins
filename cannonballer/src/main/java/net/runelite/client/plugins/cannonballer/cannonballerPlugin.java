@@ -41,28 +41,29 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.plugins.*;
-import net.runelite.client.plugins.botutils.BotUtils;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
+import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
+import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
 import javax.inject.Inject;
 import java.awt.*;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static net.runelite.client.plugins.cannonballer.cannonballerState.*;
 
 @Extension
-@PluginDependency(BotUtils.class)
+@PluginDependency(iUtils.class)
 @PluginDescriptor(
 	name = "Sandy Cannonballer",
 	enabledByDefault = false,
 	description = "Makes cannonballs",
-	tags = {"plank, maker, construction, sandy"},
-	type = PluginType.SKILLING
+	tags = {"cannon, ball, smelt, smith, sandy"}
 )
 @Slf4j
 public class cannonballerPlugin extends Plugin
@@ -74,7 +75,29 @@ public class cannonballerPlugin extends Plugin
 	private cannonballerConfiguration config;
 
 	@Inject
-	private BotUtils utils;
+	private iUtils utils;
+	@Inject
+	private MouseUtils mouse;
+	@Inject
+	private KeyboardUtils key;
+	@Inject
+	private PlayerUtils playerUtils;
+	@Inject
+	private InventoryUtils inventory;
+	@Inject
+	private InterfaceUtils interfaceUtils;
+	@Inject
+	private CalculationUtils calc;
+	@Inject
+	private MenuUtils menu;
+	@Inject
+	private ObjectUtils object;
+	@Inject
+	private BankUtils bank;
+	@Inject
+	private NPCUtils npc;
+	@Inject
+	private WalkUtils walk;
 
 	@Inject
 	private ConfigManager configManager;
@@ -188,49 +211,34 @@ public class cannonballerPlugin extends Plugin
 
 	private long sleepDelay()
 	{
-		sleepLength = utils.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
+		sleepLength = calc.randomDelay(config.sleepWeightedDistribution(), config.sleepMin(), config.sleepMax(), config.sleepDeviation(), config.sleepTarget());
 		return sleepLength;
 	}
 
 	private int tickDelay()
 	{
-		int tickLength = (int) utils.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
+		int tickLength = (int) calc.randomDelay(config.tickDelayWeightedDistribution(), config.tickDelayMin(), config.tickDelayMax(), config.tickDelayDeviation(), config.tickDelayTarget());
 		log.debug("tick delay for {} ticks", tickLength);
 		return tickLength;
 	}
 
-	private void interactOakTree()
-	{
-		targetObject = utils.findNearestGameObjectWithin(player.getWorldLocation(), 5, Collections.singleton(10820));
-		if (targetObject != null)
-		{
-			targetMenu = new MenuEntry("Chop down", "<col=ffff>Oak", targetObject.getId(), MenuOpcode.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
-		}
-		else
-		{
-			log.info("Oak tree is null");
-		}
-	}
-
 	private void openBank() {
-		NPC npc = utils.findNearestNpc(1618);
-		if (npc != null) {
+		NPC Banker = npc.findNearestNpc(1618);
+		if (Banker != null) {
 			targetMenu = new MenuEntry("", "",
-					npc.getIndex(), MenuOpcode.NPC_THIRD_OPTION.getId(), 0, 0, false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(npc.getConvexHull().getBounds(), sleepDelay());
+					Banker.getIndex(), MenuAction.NPC_THIRD_OPTION.getId(), 0, 0, false);
+			menu.setEntry(targetMenu);
+			mouse.delayMouseClick(Banker.getConvexHull().getBounds(), sleepDelay());
 		}
 	}
 
 	private void useFurnace(){
-		targetObject = utils.findNearestGameObject(16469);
+		targetObject = object.findNearestGameObject(16469);
 		if (targetObject != null)
 		{
 			targetMenu = new MenuEntry("Smelt", "<col=ffff>Furnace", targetObject.getId(), 4, targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
-			utils.setMenuEntry(targetMenu);
-			utils.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
+			menu.setEntry(targetMenu);
+			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
 	}
 
@@ -238,23 +246,23 @@ public class cannonballerPlugin extends Plugin
 	{
 		if(client.getWidget(161,34)!=null){
 			Rectangle nullArea = client.getWidget(161,34).getBounds();
-			return new Point ((int)nullArea.getX()+utils.getRandomIntBetweenRange(0,nullArea.width), (int)nullArea.getY()+utils.getRandomIntBetweenRange(0,nullArea.height));
+			return new Point ((int)nullArea.getX()+calc.getRandomIntBetweenRange(0,nullArea.width), (int)nullArea.getY()+calc.getRandomIntBetweenRange(0,nullArea.height));
 		}
 
-		return new Point(client.getCanvasWidth()-utils.getRandomIntBetweenRange(0,2),client.getCanvasHeight()-utils.getRandomIntBetweenRange(0,2));
+		return new Point(client.getCanvasWidth()-calc.getRandomIntBetweenRange(0,2),client.getCanvasHeight()-calc.getRandomIntBetweenRange(0,2));
 	}
 	private cannonballerState getBankState()
 	{
-		if (!utils.inventoryContains(4)) {
+		if (!inventory.containsItem(4)) {
 			return MISSING_ITEMS;
 		}
-		if(utils.inventoryFull()){
+		if(inventory.isFull()){
 			return WALK_TO_FURNACE;
 		}
-		if(utils.inventoryContains(2)) {
+		if(inventory.containsItem(2)) {
 			return DEPOSIT_ITEMS;
 		}
-		if(!utils.inventoryContains(2)) {
+		if(!inventory.containsItem(2)) {
 			return WITHDRAWING_STEEL;
 		}
 		else {
@@ -268,16 +276,15 @@ public class cannonballerPlugin extends Plugin
 		if (timeout > 0) {
 			return TIMEOUT;
 		}
-		if (utils.isMoving(beforeLoc)) {
-			timeout = 2 + tickDelay();
+		if (playerUtils.isMoving(beforeLoc)) {
 			return MOVING;
 		}
-		if (utils.isBankOpen()) {
+		if (bank.isOpen()) {
 			return getBankState();
 		}
 		Widget lvlup = client.getWidget(WidgetInfo.LEVEL_UP_SKILL);
 		if (lvlup != null && !lvlup.isHidden()) {
-			if (utils.inventoryContains(ItemID.STEEL_BAR)) {
+			if (inventory.containsItem(ItemID.STEEL_BAR)) {
 				return WALK_TO_FURNACE;
 			} else {
 				return FIND_BANK;
@@ -286,13 +293,13 @@ public class cannonballerPlugin extends Plugin
 		if (client.getLocalPlayer().getAnimation() != -1) {
 			return ANIMATING;
 		}
-		if ((utils.getInventoryItemCount(2353,false) < 1 && utils.getInventoryItemCount(2,true) > 4) || (player.getWorldArea().intersectsWith(EDGE) && !utils.inventoryFull())){
+		if ((inventory.getItemCount(2353,false) < 1 && inventory.getItemCount(2,true) > 4) || (player.getWorldArea().intersectsWith(EDGE) && !inventory.isFull())){
 			return FIND_BANK;
 		}
-		if (utils.inventoryFull()) {
+		if (inventory.isFull()) {
 			return getCannonBallerState();
 		}
-		if (player.getWorldArea().intersectsWith(EDGE) && !utils.inventoryFull()){
+		if (player.getWorldArea().intersectsWith(EDGE) && !inventory.isFull()){
 			openBank();
 		}
 		return IDLE;
@@ -319,7 +326,7 @@ public class cannonballerPlugin extends Plugin
 			switch (state)
 			{
 				case TIMEOUT:
-					utils.handleRun(30, 20);
+					playerUtils.handleRun(30, 20);
 					timeout--;
 					break;
 				case WALK_TO_FURNACE:
@@ -337,7 +344,7 @@ public class cannonballerPlugin extends Plugin
 					break;
 				case ANIMATING:
 				case MOVING:
-					utils.handleRun(30, 20);
+					playerUtils.handleRun(30, 20);
 					timeout = tickDelay();
 					break;
 				case FIND_BANK:
@@ -345,11 +352,11 @@ public class cannonballerPlugin extends Plugin
 					timeout = tickDelay();
 					break;
 				case DEPOSIT_ITEMS:
-					utils.depositAllOfItem(2);
+					bank.depositAllOfItem(2);
 					timeout = tickDelay();
 					break;
 				case IDLE:
-					if (!utils.inventoryContains(ItemID.STEEL_BAR)){
+					if (!inventory.containsItem(ItemID.STEEL_BAR)){
 						openBank();
 						break;
 					}
@@ -368,16 +375,16 @@ public class cannonballerPlugin extends Plugin
 	}
 
 	private void withdrawRequiredItems() {
-		utils.withdrawItem(ItemID.AMMO_MOULD);
+		bank.withdrawItem(ItemID.AMMO_MOULD);
 	}
 
 	private void withdrawSteel() {
-	utils.withdrawAllItem(ItemID.STEEL_BAR);
+		bank.withdrawAllItem(ItemID.STEEL_BAR);
 	}
 
 	private void makeBalls() {
 		targetMenu = new MenuEntry("Make sets:", "<col=ff9040>Cannonballs</col>", 1, 57, -1, 17694734, false);
-		utils.delayMouseClick(client.getWidget(270,14).getBounds(), sleepDelay());
+		mouse.delayMouseClick(client.getWidget(270,14).getBounds(), sleepDelay());
 		}
 
 	private cannonballerState getCannonBallerState()
