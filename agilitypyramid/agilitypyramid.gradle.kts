@@ -25,7 +25,7 @@
 
 version = "2.1.0"
 
-project.extra["PluginName"] = "Sandy Pyramid"
+project.extra["PluginName"] = "Sandy Agility Pyramid"
 project.extra["PluginDescription"] = "Automatically runs agility pyramid"
 
 dependencies {
