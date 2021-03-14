@@ -16,7 +16,7 @@ plugins {
     checkstyle
 }
 
-project.extra["GithubUrl"] = "https://github.com/bucketofsandy/sandy-premium"
+project.extra["GithubUrl"] = "https://github.com/bucketofsandy/sandy-plugins"
 
 apply<BootstrapPlugin>()
 
