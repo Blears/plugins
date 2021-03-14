@@ -29,7 +29,6 @@ include(":agilitypyramid")
 include(":plankmaker")
 include(":cannonballer")
 include (":teakchopper")
-include (":template")
 
 for (project in rootProject.children) {
     project.apply {
