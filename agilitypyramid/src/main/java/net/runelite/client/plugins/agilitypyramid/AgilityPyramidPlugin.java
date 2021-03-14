@@ -360,8 +360,8 @@ public class AgilityPyramidPlugin extends Plugin {
     private void handInTops(){
         NPC Simon = npc.findNearestNpc(5786);
             if (Simon != null) {
-                targetMenu = new MenuEntry("Talk-to", "<col=ffff00>Simon Templeton", Simon.getIndex(), 9,0,0, false);
-                menu.setEntry(targetMenu);
+                targetMenu = new MenuEntry("Talk-to", "<col=ffff00>Simon Templeton", Simon.getIndex(), 7,0,0, false);
+                menu.setModifiedEntry(targetMenu, ItemID.PYRAMID_TOP, inventory.getWidgetItem(ItemID.PYRAMID_TOP).getIndex(),7);
                 mouse.delayMouseClick(Simon.getConvexHull().getBounds(), sleepDelay());
                 return;
             }

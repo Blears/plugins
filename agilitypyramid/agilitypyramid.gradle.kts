@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "2.1.1"
+version = "2.1.2"
 
 project.extra["PluginName"] = "Sandy Agility Pyramid"
 project.extra["PluginDescription"] = "Automatically runs agility pyramid"
