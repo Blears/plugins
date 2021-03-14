@@ -6,7 +6,7 @@ External plugins for OpenOSRS.
 
 **Supported plugins:**
 
-You will need to add **two** repositories. Mine and illumines for iUtils, and Owain94 for chin-breakhandler.
+You will need to add **two (or three)** repositories. Mine and illumines for iUtils, and Owain94 for chin-breakhandler.
 
 Mine:
 **Github Repository owner:** bucketofsandy
