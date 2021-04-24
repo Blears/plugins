@@ -383,7 +383,8 @@ public class cannonballerPlugin extends Plugin
 	}
 
 	private void makeBalls() {
-		targetMenu = new MenuEntry("Make sets:", "<col=ff9040>Cannonballs</col>", 1, 57, -1, 17694734, false);
+		targetMenu = new MenuEntry("Make sets:", "<col=ff9040>Cannonballs</col>", 1, MenuAction.CC_OP.getId(), -1, 17694734, false);
+		menu.setEntry(targetMenu);
 		mouse.delayMouseClick(client.getWidget(270,14).getBounds(), sleepDelay());
 		}
 

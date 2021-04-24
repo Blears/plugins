@@ -388,7 +388,8 @@ public class plankmakerPlugin extends Plugin
 	}
 
 	private void makePlank() {
-		targetMenu = new MenuEntry("Make", "<col=ff9040>Oak - 250gp</col>", 1, 57, -1, 17694736, false);
+		targetMenu = new MenuEntry("Make", "<col=ff9040>Oak - 250gp</col>", 1, MenuAction.CC_OP.getId(), -1, 17694735, false);
+		menu.setEntry(targetMenu);
 		mouse.delayMouseClick(client.getWidget(270,15).getBounds(), sleepDelay());
 		}
 
