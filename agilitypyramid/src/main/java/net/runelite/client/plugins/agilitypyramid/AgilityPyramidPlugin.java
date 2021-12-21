@@ -26,6 +26,7 @@
 package net.runelite.client.plugins.agilitypyramid;
 
 import com.google.inject.Provides;
+import com.sandyplugins.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
@@ -39,8 +40,10 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.plugins.*;
-import net.runelite.client.plugins.iutils.*;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
+import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
@@ -54,7 +57,7 @@ import static net.runelite.client.plugins.agilitypyramid.AgilityPyramidState.*;
 
 
 @Extension
-@PluginDependency(iUtils.class)
+@PluginDependency(sUtils.class)
 @PluginDescriptor(
         name = "Sandy Agility Pyramid",
         enabledByDefault = false,
@@ -67,7 +70,7 @@ public class AgilityPyramidPlugin extends Plugin {
     private Client client;
 
     @Inject
-    private iUtils utils;
+    private sUtils utils;
 
     @Inject
     private MouseUtils mouse;
@@ -123,7 +126,7 @@ public class AgilityPyramidPlugin extends Plugin {
     Player player;
     AgilityPyramidState state;
     Instant botTimer;
-    MenuEntry targetMenu;
+    LegacyMenuEntry targetMenu;
     LocalPoint beforeLoc = new LocalPoint(0, 0);
     Set<Integer> inventoryItems = new HashSet<>();
 
@@ -201,7 +204,7 @@ public class AgilityPyramidPlugin extends Plugin {
             if (obstacle.getObstacleType() == AgilityPyramidObstacleType.DECORATION) {
                 DecorativeObject decObstacle = object.findNearestDecorObject(obstacle.getObstacleId());
                 if (decObstacle != null) {
-                    targetMenu = new MenuEntry("", "", decObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), decObstacle.getLocalLocation().getSceneX(), decObstacle.getLocalLocation().getSceneY(), false);
+                    targetMenu = new LegacyMenuEntry("", "", decObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, decObstacle.getLocalLocation().getSceneX(), decObstacle.getLocalLocation().getSceneY(), false);
                     menu.setEntry(targetMenu);
                     mouse.delayMouseClick(decObstacle.getConvexHull().getBounds(), sleepDelay());
                     return;
@@ -210,7 +213,7 @@ public class AgilityPyramidPlugin extends Plugin {
             if (obstacle.getObstacleType() == AgilityPyramidObstacleType.GROUND_OBJECT) {
                 GroundObject groundObstacle = object.findNearestGroundObject(obstacle.getObstacleId());
                 if (groundObstacle != null) {
-                    targetMenu = new MenuEntry("", "", groundObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), groundObstacle.getLocalLocation().getSceneX(), groundObstacle.getLocalLocation().getSceneY(), false);
+                    targetMenu = new LegacyMenuEntry("", "", groundObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, groundObstacle.getLocalLocation().getSceneX(), groundObstacle.getLocalLocation().getSceneY(), false);
                     menu.setEntry(targetMenu);
                     mouse.delayMouseClick(groundObstacle.getConvexHull().getBounds(), sleepDelay());
                     return;
@@ -218,7 +221,7 @@ public class AgilityPyramidPlugin extends Plugin {
             }
             GameObject objObstacle = object.findNearestGameObject(obstacle.getObstacleId());
             if (objObstacle != null) {
-                targetMenu = new MenuEntry("", "", objObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), objObstacle.getSceneMinLocation().getX(), objObstacle.getSceneMinLocation().getY(), false);
+                targetMenu = new LegacyMenuEntry("", "", objObstacle.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, objObstacle.getSceneMinLocation().getX(), objObstacle.getSceneMinLocation().getY(), false);
                 menu.setEntry(targetMenu);
                 mouse.delayMouseClick(objObstacle.getConvexHull().getBounds(), sleepDelay());
                 return;
@@ -351,7 +354,7 @@ public class AgilityPyramidPlugin extends Plugin {
         GroundObject climbRock = object.findNearestGroundObject(11949);
             if (climbRock != null) {
             //Climb Climbing rocks, id = 11949 (ground object)
-                targetMenu = new MenuEntry("", "", climbRock.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), climbRock.getLocalLocation().getSceneX(), climbRock.getLocalLocation().getSceneY(), false);
+                targetMenu = new LegacyMenuEntry("", "", climbRock.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, climbRock.getLocalLocation().getSceneX(), climbRock.getLocalLocation().getSceneY(), false);
                 menu.setEntry(targetMenu);
                 mouse.delayMouseClick(climbRock.getConvexHull().getBounds(), sleepDelay());
             }
@@ -360,7 +363,7 @@ public class AgilityPyramidPlugin extends Plugin {
     private void handInTops(){
         NPC Simon = npc.findNearestNpc(5786);
             if (Simon != null) {
-                targetMenu = new MenuEntry("Talk-to", "<col=ffff00>Simon Templeton", Simon.getIndex(), MenuAction.ITEM_USE.getId(),0,9764864, false);
+                targetMenu = new LegacyMenuEntry("Talk-to", "<col=ffff00>Simon Templeton", Simon.getIndex(), MenuAction.ITEM_USE,0,9764864, false);
                 menu.setModifiedEntry(targetMenu, ItemID.PYRAMID_TOP, inventory.getWidgetItem(ItemID.PYRAMID_TOP).getIndex(),MenuAction.ITEM_USE_ON_NPC.getId());
                 mouse.delayMouseClick(Simon.getConvexHull().getBounds(), sleepDelay());
                 return;
@@ -385,7 +388,7 @@ public class AgilityPyramidPlugin extends Plugin {
             utils.sendGameMessage("Out of astrals runes");
             startAgility = false;
         }
-        targetMenu = new MenuEntry("Cast", "<col=00ff00>Humidify</col>", 1, 57, -1, 14286954, false);
+        targetMenu = new LegacyMenuEntry("Cast", "<col=00ff00>Humidify</col>", 1, MenuAction.CC_OP, -1, 14286954, false);
         Widget spellWidget = client.getWidget(WidgetInfo.SPELL_HUMIDIFY);
         if (spellWidget == null) {
             utils.sendGameMessage("Unable to find humidify widget");
@@ -395,7 +398,7 @@ public class AgilityPyramidPlugin extends Plugin {
     }
     private void eatFood() {
         if (inventory.containsItem(config.foodType())) {
-            targetMenu = new MenuEntry("", "", inventory.getWidgetItem(config.foodType()).getId(), MenuAction.ITEM_FIRST_OPTION.getId(), inventory.getWidgetItem(config.foodType()).getIndex(), 9764864, false);
+            targetMenu = new LegacyMenuEntry("", "", inventory.getWidgetItem(config.foodType()).getId(), MenuAction.ITEM_FIRST_OPTION, inventory.getWidgetItem(config.foodType()).getIndex(), 9764864, false);
             mouse.delayMouseClick(inventory.getWidgetItem(config.foodType()).getCanvasBounds(), sleepDelay());
         }
     }
@@ -410,7 +413,7 @@ public class AgilityPyramidPlugin extends Plugin {
 
     private void sellTops()
     {
-        targetMenu = new MenuEntry("", "", 1, 30, 1, 14352385, false);
+        targetMenu = new LegacyMenuEntry("", "", 1, MenuAction.WIDGET_TYPE_6, 1, 14352385, false);
         mouse.delayMouseClick(client.getWidget(219,1).getChild(1).getBounds(), sleepDelay());
     }
 
@@ -423,7 +426,7 @@ public class AgilityPyramidPlugin extends Plugin {
         }
         if (targetMenu != null)
         {
-            log.debug("MenuEntry string event: " + targetMenu.toString());
+            log.debug("LegacyMenuEntry string event: " + targetMenu.toString());
             timeout = tickDelay();
         }
     }

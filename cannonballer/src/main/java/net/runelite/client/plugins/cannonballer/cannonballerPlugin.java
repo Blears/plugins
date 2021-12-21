@@ -26,6 +26,7 @@
 package net.runelite.client.plugins.cannonballer;
 
 import com.google.inject.Provides;
+import com.sandyplugins.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Point;
 import net.runelite.api.*;
@@ -45,7 +46,6 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
-import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
@@ -58,7 +58,7 @@ import java.util.Set;
 import static net.runelite.client.plugins.cannonballer.cannonballerState.*;
 
 @Extension
-@PluginDependency(iUtils.class)
+@PluginDependency(sUtils.class)
 @PluginDescriptor(
 	name = "Sandy Cannonballer",
 	enabledByDefault = false,
@@ -75,7 +75,7 @@ public class cannonballerPlugin extends Plugin
 	private cannonballerConfiguration config;
 
 	@Inject
-	private iUtils utils;
+	private sUtils utils;
 	@Inject
 	private MouseUtils mouse;
 	@Inject
@@ -114,7 +114,7 @@ public class cannonballerPlugin extends Plugin
 
 	cannonballerState state;
 	GameObject targetObject;
-	MenuEntry targetMenu;
+	LegacyMenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
@@ -225,8 +225,8 @@ public class cannonballerPlugin extends Plugin
 	private void openBank() {
 		NPC Banker = npc.findNearestNpc(1618);
 		if (Banker != null) {
-			targetMenu = new MenuEntry("", "",
-					Banker.getIndex(), MenuAction.NPC_THIRD_OPTION.getId(), 0, 0, false);
+			targetMenu = new LegacyMenuEntry("", "",
+					Banker.getIndex(), MenuAction.NPC_THIRD_OPTION, 0, 0, false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(Banker.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -236,7 +236,7 @@ public class cannonballerPlugin extends Plugin
 		targetObject = object.findNearestGameObject(16469);
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("Smelt", "<col=ffff>Furnace", targetObject.getId(), 4, targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
+			targetMenu = new LegacyMenuEntry("Smelt", "<col=ffff>Furnace", targetObject.getId(), MenuAction.GAME_OBJECT_SECOND_OPTION, targetObject.getSceneMinLocation().getX(),targetObject.getSceneMinLocation().getY(),false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -383,7 +383,7 @@ public class cannonballerPlugin extends Plugin
 	}
 
 	private void makeBalls() {
-		targetMenu = new MenuEntry("Make sets:", "<col=ff9040>Cannonballs</col>", 1, MenuAction.CC_OP.getId(), -1, 17694734, false);
+		targetMenu = new LegacyMenuEntry("Make sets:", "<col=ff9040>Cannonballs</col>", 1, MenuAction.CC_OP, -1, 17694734, false);
 		menu.setEntry(targetMenu);
 		mouse.delayMouseClick(client.getWidget(270,14).getBounds(), sleepDelay());
 		}
@@ -405,7 +405,7 @@ public class cannonballerPlugin extends Plugin
 		}
 		if (targetMenu != null)
 		{
-			log.debug("MenuEntry string event: " + targetMenu.toString());
+			log.debug("LegacyMenuEntry string event: " + targetMenu.toString());
 			timeout = tickDelay();
 		}
 	}

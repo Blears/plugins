@@ -26,6 +26,7 @@
 package net.runelite.client.plugins.plankmaker;
 
 import com.google.inject.Provides;
+import com.sandyplugins.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
@@ -42,7 +43,6 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
-import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
@@ -55,7 +55,7 @@ import java.util.Set;
 import static net.runelite.client.plugins.plankmaker.plankmakerState.*;
 
 @Extension
-@PluginDependency(iUtils.class)
+@PluginDependency(sUtils.class)
 @PluginDescriptor(
 	name = "Sandy Plankmaker",
 	enabledByDefault = false,
@@ -72,7 +72,7 @@ public class plankmakerPlugin extends Plugin
 	private plankmakerConfiguration config;
 
 	@Inject
-	private iUtils utils;
+	private sUtils utils;
 
 	@Inject
 	private MouseUtils mouse;
@@ -120,7 +120,7 @@ public class plankmakerPlugin extends Plugin
 	plankmakerState state;
 	GameObject targetObject;
 	NPC targetNPC;
-	MenuEntry targetMenu;
+	LegacyMenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
@@ -226,7 +226,7 @@ public class plankmakerPlugin extends Plugin
 		targetObject = object.findNearestGameObjectWithin(player.getWorldLocation(), 5, Collections.singleton(10820));
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("Chop down", "<col=ffff>Oak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Oak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -241,7 +241,7 @@ public class plankmakerPlugin extends Plugin
 		targetNPC = npc.findNearestNpcWithin(player.getWorldLocation(), 25, Collections.singleton(3101));
 		if (targetNPC != null)
 		{
-			targetMenu = new MenuEntry("Buy-plank", "<col=ffff00>Sawmill operator", targetNPC.getIndex(), 11, 0, 0, false);
+			targetMenu = new LegacyMenuEntry("Buy-plank", "<col=ffff00>Sawmill operator", targetNPC.getIndex(), MenuAction.NPC_THIRD_OPTION, 0, 0, false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetNPC.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -256,7 +256,7 @@ public class plankmakerPlugin extends Plugin
 		targetObject = object.findNearestGameObject(26254);
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("", "", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("", "", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -388,7 +388,7 @@ public class plankmakerPlugin extends Plugin
 	}
 
 	private void makePlank() {
-		targetMenu = new MenuEntry("Make", "<col=ff9040>Oak - 250gp</col>", 1, MenuAction.CC_OP.getId(), -1, 17694735, false);
+		targetMenu = new LegacyMenuEntry("Make", "<col=ff9040>Oak - 250gp</col>", 1, MenuAction.CC_OP, -1, 17694735, false);
 		menu.setEntry(targetMenu);
 		mouse.delayMouseClick(client.getWidget(270,15).getBounds(), sleepDelay());
 		}
@@ -419,7 +419,7 @@ public class plankmakerPlugin extends Plugin
 		}
 		if (targetMenu != null)
 		{
-			log.debug("MenuEntry string event: " + targetMenu.toString());
+			log.debug("LegacyMenuEntry string event: " + targetMenu.toString());
 			timeout = tickDelay();
 		}
 	}

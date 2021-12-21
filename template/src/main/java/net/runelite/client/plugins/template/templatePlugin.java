@@ -15,7 +15,7 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.*;
-import net.runelite.client.plugins.iutils.*;
+import net.runelite.client.plugins.sUtils.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
@@ -28,7 +28,7 @@ import java.util.Set;
 import static net.runelite.client.plugins.template.templateState.*;
 
 @Extension
-@PluginDependency(iUtils.class)
+@PluginDependency(sUtils.class)
 @PluginDescriptor(
 		name = "Sandy template",
 		enabledByDefault = false,
@@ -45,7 +45,7 @@ public class templatePlugin extends Plugin
 	private templateConfiguration config;
 
 	@Inject
-	private iUtils utils;
+	private sUtils utils;
 	@Inject
 	private MouseUtils mouse;
 	@Inject
@@ -84,7 +84,7 @@ public class templatePlugin extends Plugin
 
 	templateState state;
 	GameObject targetObject;
-	MenuEntry targetMenu;
+	LegacyMenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
@@ -232,7 +232,7 @@ public class templatePlugin extends Plugin
 	private void openBank() {
 			NPC banker = npc.findNearestNpc(1618);
 			if (banker != null) {
-				targetMenu = new MenuEntry("", "", 9267, MenuAction.NPC_THIRD_OPTION.getId(), 0, 0, false);
+				targetMenu = new LegacyMenuEntry("", "", 9267, MenuAction.NPC_THIRD_OPTION.getId(), 0, 0, false);
 				menu.setEntry(targetMenu);
 				mouse.delayMouseClick(banker.getConvexHull().getBounds(), sleepDelay());
 			}
@@ -242,7 +242,7 @@ public class templatePlugin extends Plugin
 		targetObject = object.findNearestGameObject(0);
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("", "", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("", "", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}

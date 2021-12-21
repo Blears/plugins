@@ -23,13 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.0.1"
+version = "1.1.0"
 
 project.extra["PluginName"] = "Sandy Teakchopper"
 project.extra["PluginDescription"] = "Automatically chops and banks teaks on Fossil Island"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "3.1.0+");
+    compileOnly(group = "com.openosrs.externals", name = "sutils", version = "1.0.0+");
 }
 
 tasks {
@@ -41,7 +41,7 @@ tasks {
                     "Plugin-Provider" to project.extra["PluginProvider"],
                     "Plugin-Dependencies" to
                             arrayOf(
-                                    nameToId("iUtils"),
+                                    nameToId("sUtils"),
                                     "chinbreakhandler-plugin"
                             ).joinToString(),
                     "Plugin-Description" to project.extra["PluginDescription"],

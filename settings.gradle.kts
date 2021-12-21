@@ -25,6 +25,7 @@
 
 rootProject.name = "sandy-plugins"
 
+include(":sutils")
 include(":agilitypyramid")
 include(":plankmaker")
 include(":cannonballer")

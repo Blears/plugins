@@ -29,7 +29,7 @@ project.extra["PluginName"] = "Sandy template"
 project.extra["PluginDescription"] = "template"
 
 dependencies {
-    compileOnly(group = "com.openosrs.externals", name = "iutils", version = "3.1.0+");
+    compileOnly(group = "com.openosrs.externals", name = "sUtils", version = "1.0.0+");
 }
 
 tasks {
@@ -60,7 +60,7 @@ tasks {
                     "Plugin-Provider" to project.extra["PluginProvider"],
                     "Plugin-Dependencies" to
                             arrayOf(
-                                    nameToId("iUtils"),
+                                    nameToId("sUtils"),
                                     "chinbreakhandler-plugin"
                             ).joinToString(),
                     "Plugin-Description" to project.extra["PluginDescription"],

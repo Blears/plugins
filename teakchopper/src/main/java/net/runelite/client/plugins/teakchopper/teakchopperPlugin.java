@@ -26,6 +26,7 @@
 package net.runelite.client.plugins.teakchopper;
 
 import com.google.inject.Provides;
+import com.sandyplugins.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
@@ -38,8 +39,10 @@ import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.plugins.*;
-import net.runelite.client.plugins.iutils.*;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
+import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 
@@ -52,7 +55,7 @@ import static net.runelite.client.plugins.teakchopper.teakchopperState.*;
 
 
 @Extension
-@PluginDependency(iUtils.class)
+@PluginDependency(sUtils.class)
 @PluginDescriptor(
 	name = "Sandy Teak Chopper",
 	enabledByDefault = false,
@@ -69,7 +72,7 @@ public class teakchopperPlugin extends Plugin
 	private teakchopperConfiguration config;
 
 	@Inject
-	private iUtils utils;
+	private sUtils utils;
 	@Inject
 	private MouseUtils mouse;
 	@Inject
@@ -108,7 +111,7 @@ public class teakchopperPlugin extends Plugin
 
 	teakchopperState state;
 	GameObject targetObject;
-	MenuEntry targetMenu;
+	LegacyMenuEntry targetMenu;
 	WorldPoint skillLocation;
 	Instant botTimer;
 	LocalPoint beforeLoc;
@@ -211,7 +214,7 @@ public class teakchopperPlugin extends Plugin
 	{
 		targetObject = object.findNearestGameObject(30482);
 		if (targetObject != null) {
-				targetMenu = new MenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+				targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 				menu.setEntry(targetMenu);
 				mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 			}
@@ -221,7 +224,7 @@ public class teakchopperPlugin extends Plugin
 	{
 		targetObject = object.findNearestGameObject(30480);
 		if (targetObject != null) {
-			targetMenu = new MenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -231,7 +234,7 @@ public class teakchopperPlugin extends Plugin
 	{
 		targetObject = object.findNearestGameObject(30481);
 		if (targetObject != null) {
-			targetMenu = new MenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -242,7 +245,7 @@ public class teakchopperPlugin extends Plugin
 		targetObject = object.findNearestGameObject(31427);
 		if (targetObject != null)
 		{
-			targetMenu = new MenuEntry("Bank", "<col=ffff>Bank chest", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("Bank", "<col=ffff>Bank chest", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -361,7 +364,7 @@ public class teakchopperPlugin extends Plugin
 					targetObject = object.findNearestGameObject(31482);
 					if (targetObject != null)
 					{
-						targetMenu = new MenuEntry("Climb through", "<col=ffff>Hole", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+						targetMenu = new LegacyMenuEntry("Climb through", "<col=ffff>Hole", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 						menu.setEntry(targetMenu);
 						mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 					}
@@ -374,7 +377,7 @@ public class teakchopperPlugin extends Plugin
 					targetObject = object.findNearestGameObject(31481 );
 					if (targetObject != null)
 					{
-						targetMenu = new MenuEntry("Climb through", "<col=ffff>Hole", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+						targetMenu = new LegacyMenuEntry("Climb through", "<col=ffff>Hole", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 						menu.setEntry(targetMenu);
 						mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 					}
@@ -427,7 +430,7 @@ public class teakchopperPlugin extends Plugin
 		}
 		if (targetMenu != null)
 		{
-			log.debug("MenuEntry string event: " + targetMenu.toString());
+			log.debug("LegacyMenuEntry string event: " + targetMenu.toString());
 			timeout = tickDelay();
 		}
 	}
