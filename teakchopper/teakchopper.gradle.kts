@@ -23,9 +23,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.1.0"
+version = "1.2.0"
 
-project.extra["PluginName"] = "Sandy Teakchopper"
+project.extra["PluginName"] = "Sandy Chopper"
 project.extra["PluginDescription"] = "Automatically chops and banks teaks on Fossil Island"
 
 dependencies {
