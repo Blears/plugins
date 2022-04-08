@@ -9,7 +9,7 @@ public enum teakchopperState
 	WALK_TO_BANK,
 	FIND_BANK,
 	DEPOSIT_ITEMS,
-	WALK_TO_TEAK,
-	FIND_TEAK,
+	WALK_TO_TREE,
+	FIND_TREE,
 	UNHANDLED_STATE
 }
