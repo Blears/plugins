@@ -57,10 +57,10 @@ import static net.runelite.client.plugins.teakchopper.teakchopperState.*;
 @Extension
 @PluginDependency(sUtils.class)
 @PluginDescriptor(
-	name = "Sandy Teak Chopper",
+	name = "Sandy Chopper",
 	enabledByDefault = false,
-	description = "Chops teaks and banks at Fossil Island",
-	tags = {"teak, chopper, woodcutting, sandy"}
+	description = "Chops and banks at Fossil Island",
+	tags = {"teak, mahogany, chopper, woodcutting, sandy"}
 )
 @Slf4j
 public class teakchopperPlugin extends Plugin
@@ -214,7 +214,7 @@ public class teakchopperPlugin extends Plugin
 	{
 		targetObject = object.findNearestGameObject(30482);
 		if (targetObject != null) {
-				targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+				targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Mahogany", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 				menu.setEntry(targetMenu);
 				mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 			}
@@ -224,7 +224,7 @@ public class teakchopperPlugin extends Plugin
 	{
 		targetObject = object.findNearestGameObject(30480);
 		if (targetObject != null) {
-			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Mahogany", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -234,7 +234,7 @@ public class teakchopperPlugin extends Plugin
 	{
 		targetObject = object.findNearestGameObject(30481);
 		if (targetObject != null) {
-			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Teak", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
+			targetMenu = new LegacyMenuEntry("Chop down", "<col=ffff>Mahogany", targetObject.getId(), MenuAction.GAME_OBJECT_FIRST_OPTION, targetObject.getSceneMinLocation().getX(), targetObject.getSceneMinLocation().getY(), false);
 			menu.setEntry(targetMenu);
 			mouse.delayMouseClick(targetObject.getConvexHull().getBounds(), sleepDelay());
 		}
@@ -318,35 +318,35 @@ public class teakchopperPlugin extends Plugin
 					timeout--;
 					break;
 				case FIND_TEAK: //tree 1 = east, tree 2 is middle, tree 3 is west
-					if (client.getVarbitValue(4771) == 16 && client.getVarbitValue(4772) == 16){
+					if (client.getVarbitValue(4771) == 39 && client.getVarbitValue(4772) == 39){
 						interactTeakTree1();
 						timeout = tickDelay();
 						}
-					if (client.getVarbitValue(4771) == 17 && client.getVarbitValue(4772) == 16) { //if right tree = cut
+					if (client.getVarbitValue(4771) == 40 && client.getVarbitValue(4772) == 39) { //if right tree = cut
 						interactTeakTree2();
 						timeout = tickDelay();
 					}
-					if (client.getVarbitValue(4772) == 17 && client.getVarbitValue(4771) == 16) {// if left tree = cut{
+					if (client.getVarbitValue(4772) == 40 && client.getVarbitValue(4771) == 39) {// if left tree = cut{
 						interactTeakTree1();
 						timeout = tickDelay();
 					}
-					if (client.getVarbitValue(4771) == 17 && client.getVarbitValue(4772) == 17 && client.getVarbitValue(4773) == 16){ //if both = cut
+					if (client.getVarbitValue(4771) == 40 && client.getVarbitValue(4772) == 40 && client.getVarbitValue(4773) == 39){ //if both = cut
 						interactTeakTree3();
 						timeout = tickDelay();
 					}
-					if (client.getVarbitValue(4773) == 17 && client.getVarbitValue(4771) == 16){
+					if (client.getVarbitValue(4773) == 40 && client.getVarbitValue(4771) == 39){
 						interactTeakTree1();
 						timeout = tickDelay();
 					}
-					if (client.getVarbitValue(4773) == 17 && client.getVarbitValue(4772) == 17 && client.getVarbitValue(4771) == 16){
+					if (client.getVarbitValue(4773) == 40 && client.getVarbitValue(4772) == 40 && client.getVarbitValue(4771) == 39){
 						interactTeakTree1();
 						timeout = tickDelay();
 					}
-					if (client.getVarbitValue(4773) == 17 && client.getVarbitValue(4772) == 16 && client.getVarbitValue(4771) == 17){
+					if (client.getVarbitValue(4773) == 40 && client.getVarbitValue(4772) == 39 && client.getVarbitValue(4771) == 40){
 						interactTeakTree2();
 						timeout = tickDelay();
 					}
-					if (client.getVarbitValue(4771) == 17 && client.getVarbitValue(4772) == 17 && client.getVarbitValue(4773) == 17){
+					if (client.getVarbitValue(4771) == 40 && client.getVarbitValue(4772) == 40 && client.getVarbitValue(4773) == 40){
 						timeout = 5 + tickDelay();
 					}
 					timeout = tickDelay();
@@ -414,7 +414,7 @@ public class teakchopperPlugin extends Plugin
 			if(player.getWorldArea().intersectsWith(TEAKS)){
 				return WALK_TO_BANK;
 			}
-			if((player.getWorldArea().intersectsWith(BANK)) && inventory.containsItem(6333)){
+			if((player.getWorldArea().intersectsWith(BANK)) && inventory.containsItem(6332)){
 				return FIND_BANK;
 			}
 		}
